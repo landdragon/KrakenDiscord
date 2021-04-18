@@ -44,10 +44,5 @@ async def on_ready():
     print(client.user.name)
     print("[ON]")
     print('- - - - - - - -')
-    if IsInNotProd == "true":
-        print('send message to say Hello')
-        for Channel in client.get_all_channels():
-            if Channel.type == discord.ChannelType.text:
-                await Channel.send("salut je viens d'être livré avec pour version : " + HEROKU_RELEASE_VERSION)
 
 client.run(TOKEN)
