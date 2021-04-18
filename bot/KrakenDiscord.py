@@ -16,31 +16,23 @@ bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 @bot.command()
 async def ping(ctx: discord.ext.commands.Context):
     print("ping")
-    if ctx.channel != CHANNEL_WORK:
+    if ctx.channel.name != CHANNEL_WORK:
         return
     await ctx.send('pong')
 
 
 @bot.command()
-async def sum(ctx, numOne: int, numTwo: int):
-    print("sum")
-    if ctx.channel != CHANNEL_WORK:
-        return
-    await ctx.send(numOne + numTwo)
-
-
-@bot.command()
-async def where(ctx):
+async def where(ctx: discord.ext.commands.Context):
     print("where")
-    print(ctx.channel != CHANNEL_WORK)
-    await ctx.send("The commande will work at " + CHANNEL_WORK + "and you are at " + ctx.channel + ". you are not at the good place ? " +
-                   ctx.channel != CHANNEL_WORK)
+    print(ctx.channel.name != CHANNEL_WORK)
+    await ctx.send("The commande will work at " + CHANNEL_WORK + "and you are at " + ctx.channel.name + ". you are not at the good place ? " +
+                   ctx.channel.name != CHANNEL_WORK)
 
 
 @bot.command()
-async def info(ctx):
+async def info(ctx: discord.ext.commands.Context):
     print("info")
-    if ctx.channel != CHANNEL_WORK:
+    if ctx.channel.name != CHANNEL_WORK:
         return
     print()
     embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commande sur Kraken",
