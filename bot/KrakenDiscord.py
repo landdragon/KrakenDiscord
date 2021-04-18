@@ -15,19 +15,22 @@ bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 
 @bot.command()
 async def ping(ctx: discord.ext.commands.Context):
-    print(ctx.channel)
     print("ping")
+    if ctx.channel != CHANNEL_WORK:
+        return
     await ctx.send('pong')
 
 
 @bot.command()
 async def sum(ctx, numOne: int, numTwo: int):
     print("sum")
+    if ctx.channel != CHANNEL_WORK:
+        return
     await ctx.send(numOne + numTwo)
 
 
 @bot.command()
-async def where(ctx, numOne: int, numTwo: int):
+async def where(ctx):
     print("where")
     await ctx.send(CHANNEL_WORK)
 
@@ -35,6 +38,8 @@ async def where(ctx, numOne: int, numTwo: int):
 @bot.command()
 async def info(ctx):
     print("info")
+    if ctx.channel != CHANNEL_WORK:
+        return
     print()
     embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commande sur Kraken",
                           timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
