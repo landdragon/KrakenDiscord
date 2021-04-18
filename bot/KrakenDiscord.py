@@ -9,9 +9,7 @@ HEROKU_RELEASE_CREATED_AT = os.getenv("HEROKU_RELEASE_CREATED_AT")
 HEROKU_SLUG_DESCRIPTION = os.getenv("HEROKU_SLUG_DESCRIPTION")
 
 
-client = discord.Client()
-
-bot = commands.Bot(command_prefix='>', description="This is a test Bot")
+bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 
 
 @bot.command()
@@ -42,10 +40,10 @@ async def info(ctx):
     await ctx.send(embed=embed)
 
 
-@client.event
+@bot.listen()
 async def on_ready():
-    print(client.user.name)
+    print(bot.user.name)
     print("[ON]")
     print('- - - - - - - -')
 
-client.run(TOKEN)
+bot.run(TOKEN)
