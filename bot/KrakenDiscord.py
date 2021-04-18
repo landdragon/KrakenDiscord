@@ -16,16 +16,19 @@ bot = commands.Bot(command_prefix='>', description="This is a test Bot")
 
 @bot.command()
 async def ping(ctx):
+    print("ping")
     await ctx.send('pong')
 
 
 @bot.command()
 async def sum(ctx, numOne: int, numTwo: int):
+    print("sum")
     await ctx.send(numOne + numTwo)
 
 
 @bot.command()
 async def info(ctx):
+    print("info")
     embed = discord.Embed(title=f"{ctx.guild.name}", description="Lorem Ipsum asdasd",
                           timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
     embed.add_field(name="Server created at", value=f"{ctx.guild.created_at}")
