@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import datetime
+import krakenex
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 HEROKU_RELEASE_VERSION = os.getenv("HEROKU_RELEASE_VERSION")
@@ -45,6 +46,13 @@ async def info(ctx: discord.ext.commands.Context):
         url="https://pme-bourse.fr/wp-content/uploads/2019/08/kraken-avis-300x300.png")
 
     await ctx.send(embed=embed)
+
+
+@commands.command(help="get list of pairs")
+async def assetPairs(self, ctx: commands.Context):
+    kraken = krakenex.API()
+    assetPairs = kraken.query_public('AssetPairs')
+    await ctx.send(assetPairs['result'])
 
 
 @bot.listen()
