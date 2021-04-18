@@ -28,15 +28,16 @@ async def sum(ctx, numOne: int, numTwo: int):
 @bot.command()
 async def info(ctx):
     print("info")
-    embed = discord.Embed(title=f"{ctx.guild.name}", description="Lorem Ipsum asdasd",
+    embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commande sur Kraken",
                           timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
-    embed.add_field(name="Server created at", value=f"{ctx.guild.created_at}")
-    embed.add_field(name="Server Owner", value=f"{ctx.guild.owner}")
-    embed.add_field(name="Server Region", value=f"{ctx.guild.region}")
-    embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
-    # embed.set_thumbnail(url=f"{ctx.guild.icon}")
+    embed.add_field(name="HEROKU RELEASE VERSION",
+                    value=HEROKU_RELEASE_VERSION)
+    embed.add_field(name="HEROKU RELEASE CREATED AT",
+                    value=HEROKU_RELEASE_CREATED_AT)
+    embed.add_field(name="HEROKU SLUG DESCRIPTION",
+                    value=HEROKU_SLUG_DESCRIPTION)
     embed.set_thumbnail(
-        url="https://pluralsight.imgix.net/paths/python-7be70baaac.png")
+        url="https://logo-marque.com/wp-content/uploads/2021/03/Kraken-Logo-650x366.png")
 
     await ctx.send(embed=embed)
 
