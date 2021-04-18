@@ -42,7 +42,7 @@ async def info(ctx):
                     value=HEROKU_RELEASE_VERSION)
     embed.add_field(name="Date de deploiment",
                     value=HEROKU_RELEASE_CREATED_AT)
-    embed.add_field(name="Github Version % ,
+    embed.add_field(name="Github Version",
                     value=HEROKU_SLUG_DESCRIPTION)
     embed.set_thumbnail(
         url="https://pme-bourse.fr/wp-content/uploads/2019/08/kraken-avis-300x300.png")
