@@ -8,13 +8,14 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 HEROKU_RELEASE_VERSION = os.getenv("HEROKU_RELEASE_VERSION")
 HEROKU_RELEASE_CREATED_AT = os.getenv("HEROKU_RELEASE_CREATED_AT")
 HEROKU_SLUG_DESCRIPTION = os.getenv("HEROKU_SLUG_DESCRIPTION")
-
+CHANNEL_WORK = os.getenv("CHANNEL_WORK")
 
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 
 
 @bot.command()
-async def ping(ctx):
+async def ping(ctx: discord.ext.commands.Context):
+    print(ctx.channel)
     print("ping")
     await ctx.send('pong')
 
@@ -26,18 +27,25 @@ async def sum(ctx, numOne: int, numTwo: int):
 
 
 @bot.command()
+async def where(ctx, numOne: int, numTwo: int):
+    print("where")
+    await ctx.send(CHANNEL_WORK)
+
+
+@bot.command()
 async def info(ctx):
     print("info")
+    print()
     embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commande sur Kraken",
                           timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
-    embed.add_field(name="HEROKU RELEASE VERSION",
+    embed.add_field(name="Version",
                     value=HEROKU_RELEASE_VERSION)
-    embed.add_field(name="HEROKU RELEASE CREATED AT",
+    embed.add_field(name="Date de deploiment",
                     value=HEROKU_RELEASE_CREATED_AT)
-    embed.add_field(name="HEROKU SLUG DESCRIPTION",
+    embed.add_field(name="Github Version % ,
                     value=HEROKU_SLUG_DESCRIPTION)
     embed.set_thumbnail(
-        url="https://logo-marque.com/wp-content/uploads/2021/03/Kraken-Logo-650x366.png")
+        url="https://pme-bourse.fr/wp-content/uploads/2019/08/kraken-avis-300x300.png")
 
     await ctx.send(embed=embed)
 
