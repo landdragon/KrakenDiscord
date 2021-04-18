@@ -51,8 +51,9 @@ async def info(ctx: commands.Context):
 @bot.command(help="get list of pairs")
 async def pairs(ctx: commands.Context):
     kraken = krakenex.API()
-    assetPairs = kraken.query_public('AssetPairs')
-    await ctx.send(assetPairs['result'])
+    response = kraken.query_public('AssetPairs')
+    assetPairs = list(response['result'])
+    await ctx.send(assetPairs)
 
 
 @bot.listen()
