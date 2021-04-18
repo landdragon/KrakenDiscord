@@ -33,7 +33,8 @@ async def sum(ctx, numOne: int, numTwo: int):
 async def where(ctx):
     print("where")
     print(ctx.channel != CHANNEL_WORK)
-    await ctx.send("The commande will work at " + CHANNEL_WORK + "and you are at " + ctx.channel". you are not at the good place ? ")
+    await ctx.send("The commande will work at " + CHANNEL_WORK + "and you are at " + ctx.channel + ". you are not at the good place ? " +
+                   ctx.channel != CHANNEL_WORK)
 
 
 @bot.command()
