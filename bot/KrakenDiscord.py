@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 
 
 @bot.command(help="ping pong")
-async def ping(ctx: discord.ext.commands.Context):
+async def ping(ctx: commands.Context):
     print("ping")
     if ctx.channel.name != CHANNEL_WORK:
         return
@@ -22,7 +22,7 @@ async def ping(ctx: discord.ext.commands.Context):
 
 
 @bot.command(help="where I should request this bot")
-async def where(ctx: discord.ext.commands.Context):
+async def where(ctx: commands.Context):
     print("where")
     print(ctx.channel.name != CHANNEL_WORK)
     await ctx.send("The commande will work at " + CHANNEL_WORK + "and you are at " + ctx.channel.name + ". you are not at the good place ? " +
@@ -30,7 +30,7 @@ async def where(ctx: discord.ext.commands.Context):
 
 
 @bot.command(help="get info")
-async def info(ctx: discord.ext.commands.Context):
+async def info(ctx: commands.Context):
     print("info")
     if ctx.channel.name != CHANNEL_WORK:
         return
@@ -48,8 +48,8 @@ async def info(ctx: discord.ext.commands.Context):
     await ctx.send(embed=embed)
 
 
-@commands.command(help="get list of pairs")
-async def pairs(self, ctx: commands.Context):
+@bot.command(help="get list of pairs")
+async def pairs(ctx: commands.Context):
     kraken = krakenex.API()
     assetPairs = kraken.query_public('AssetPairs')
     await ctx.send(assetPairs['result'])
