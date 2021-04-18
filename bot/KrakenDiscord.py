@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import os
-import asyncio
 import datetime
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
@@ -34,7 +33,6 @@ async def info(ctx: discord.ext.commands.Context):
     print("info")
     if ctx.channel.name != CHANNEL_WORK:
         return
-    print()
     embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commande sur Kraken",
                           timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
     embed.add_field(name="Version",
@@ -45,6 +43,18 @@ async def info(ctx: discord.ext.commands.Context):
                     value=HEROKU_SLUG_DESCRIPTION)
     embed.set_thumbnail(
         url="https://pme-bourse.fr/wp-content/uploads/2019/08/kraken-avis-300x300.png")
+
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def help(ctx: discord.ext.commands.Context):
+    print("help")
+    embed = discord.Embed(title=f"help", description="",
+                          timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
+    embed.add_field(name="info", value="info")
+    embed.add_field(name="where", value="where")
+    embed.add_field(name="ping", value="ping")
 
     await ctx.send(embed=embed)
 
