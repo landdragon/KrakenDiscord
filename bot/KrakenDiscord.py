@@ -46,7 +46,7 @@ async def info(ctx: discord.ext.commands.Context):
 
     await ctx.send(embed=embed)
 
-
+"""
 @bot.command()
 async def help(ctx: discord.ext.commands.Context):
     print("help")
@@ -57,6 +57,7 @@ async def help(ctx: discord.ext.commands.Context):
     embed.add_field(name="ping", value="ping")
 
     await ctx.send(embed=embed)
+"""
 
 
 @bot.listen()
