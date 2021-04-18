@@ -12,7 +12,7 @@ CHANNEL_WORK = os.getenv("CHANNEL_WORK")
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 
 
-@bot.command()
+@bot.command(help="ping pong")
 async def ping(ctx: discord.ext.commands.Context):
     print("ping")
     if ctx.channel.name != CHANNEL_WORK:
@@ -20,7 +20,7 @@ async def ping(ctx: discord.ext.commands.Context):
     await ctx.send('pong')
 
 
-@bot.command()
+@bot.command(help="where I should request this bot")
 async def where(ctx: discord.ext.commands.Context):
     print("where")
     print(ctx.channel.name != CHANNEL_WORK)
@@ -28,7 +28,7 @@ async def where(ctx: discord.ext.commands.Context):
                    ctx.channel.name != CHANNEL_WORK)
 
 
-@bot.command()
+@bot.command(help="get info")
 async def info(ctx: discord.ext.commands.Context):
     print("info")
     if ctx.channel.name != CHANNEL_WORK:
@@ -45,19 +45,6 @@ async def info(ctx: discord.ext.commands.Context):
         url="https://pme-bourse.fr/wp-content/uploads/2019/08/kraken-avis-300x300.png")
 
     await ctx.send(embed=embed)
-
-"""
-@bot.command()
-async def help(ctx: discord.ext.commands.Context):
-    print("help")
-    embed = discord.Embed(title=f"help", description="",
-                          timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
-    embed.add_field(name="info", value="info")
-    embed.add_field(name="where", value="where")
-    embed.add_field(name="ping", value="ping")
-
-    await ctx.send(embed=embed)
-"""
 
 
 @bot.listen()
