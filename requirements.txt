@@ -1,2 +1,2 @@
 discord.py
-krakenex.py
+krakenex

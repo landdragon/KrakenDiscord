@@ -49,7 +49,7 @@ async def info(ctx: discord.ext.commands.Context):
 
 
 @commands.command(help="get list of pairs")
-async def assetPairs(self, ctx: commands.Context):
+async def pairs(self, ctx: commands.Context):
     kraken = krakenex.API()
     assetPairs = kraken.query_public('AssetPairs')
     await ctx.send(assetPairs['result'])
