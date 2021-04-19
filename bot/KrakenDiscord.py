@@ -54,7 +54,11 @@ async def pairs(ctx: commands.Context):
     response = kraken.query_public('AssetPairs')
     assetPairs = list(response['result'])
     print(assetPairs)
-    # await ctx.send(""assetPairs"")
+    shouldContain = 'eur'
+    eurAssetPairs = [
+        s for s in assetPairs if shouldContain.lower() in s.lower()]
+    print(eurAssetPairs)
+    await ctx.send(eurAssetPairs)
 
 
 @bot.listen()
