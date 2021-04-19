@@ -53,7 +53,8 @@ async def pairs(ctx: commands.Context):
     kraken = krakenex.API()
     response = kraken.query_public('AssetPairs')
     assetPairs = list(response['result'])
-    await ctx.send(assetPairs)
+    print(assetPairs)
+    # await ctx.send(""assetPairs"")
 
 
 @bot.listen()
