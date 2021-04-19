@@ -61,6 +61,16 @@ async def pairs(ctx: commands.Context):
     await ctx.send(eurAssetPairs)
 
 
+@bot.command(help="get last transaction Price of pair")
+async def price(ctx: commands.Context, pair: str):
+    kraken = krakenex.API()
+    response = kraken.query_public('Ticker?pair=' + pair)
+    print(response['result'])
+    price = response['result'][pair]['c'][0]
+    print(price)
+    await ctx.send(price)
+
+
 @bot.listen()
 async def on_ready():
     print(bot.user.name)
