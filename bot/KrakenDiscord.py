@@ -83,7 +83,7 @@ async def price(ctx: commands.Context, pair: str):
 async def addCash(ctx: commands.Context, quantity: int):
     if ctx.channel.name != CHANNEL_WORK:
         return
-    if GetCashFromDataBase(ctx.author.name) == None:
+    if GetCashFromDataBase(ctx.author.name, "eur") == None:
         InsertCurrencyToDataBase(ctx.author.name, quantity, "eur")
     else:
         UpdateCurrencyToDataBase(ctx.author.name, quantity, "eur")
