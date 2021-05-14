@@ -87,17 +87,20 @@ async def addCash(ctx: commands.Context, quantity: int):
 
 
 @bot.command(help="get cash to virtual wallet")
-async def getCash(ctx: commands.Context, quantity: int):
-    if ctx.channel.name != CHANNEL_WORK:
-        return
-    sql = "SELECT Quantity FROM Wallets WHERE UserName = '" + ctx.author() + \
-        "' and Currency = 'eur'"
-    cur = conn.cursor()
-    cur.execute(sql)
-    records = cur.fetchone()
-    cur.close()
-    print(records)
-    await ctx.send(records)
+async def getCash(ctx: commands.Context):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        sql = "SELECT Quantity FROM Wallets WHERE UserName = '" + ctx.author() + \
+            "' and Currency = 'eur'"
+        cur = conn.cursor()
+        cur.execute(sql)
+        records = cur.fetchone()
+        cur.close()
+        print(records)
+        await ctx.send(records)
+    except ValueError:
+        print("error : " + ValueError)
 
 
 @bot.listen()
