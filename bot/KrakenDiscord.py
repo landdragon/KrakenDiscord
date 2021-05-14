@@ -39,7 +39,7 @@ async def info(ctx: commands.Context):
     if ctx.channel.name != CHANNEL_WORK:
         return
     embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commande sur Kraken",
-                          timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
+                          timestamp=datetime.utcnow(), color=discord.Color.blue())
     embed.add_field(name="Version",
                     value=HEROKU_RELEASE_VERSION)
     embed.add_field(name="Date de deploiment",
@@ -224,7 +224,7 @@ async def getInProgressOrdersVirtual(ctx: commands.Context):
         records = GetOrdersInProgressForUserFromDataBase(ctx.author.name)
         for record in records:
             embed = discord.Embed(title=f"Orders", description="ordes description",
-                                  timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
+                                  timestamp=datetime.utcnow(), color=discord.Color.blue())
 
             embed.add_field(name="id",
                             value=record[0])
