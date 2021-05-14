@@ -83,7 +83,28 @@ async def price(ctx: commands.Context, pair: str):
 async def addCash(ctx: commands.Context, quantity: int):
     if ctx.channel.name != CHANNEL_WORK:
         return
+    if GetCashFromDataBase(ctx.author.name) == None:
+        await InsertCurrencyToDataBase(ctx.author.name, quantity, "eur")
+    else:
+        await UpdateCurrencyToDataBase(ctx.author.name, quantity, "eur")
     await ctx.send("Done")
+
+
+async def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
+    sql = "INSERT INTO \"Wallets\"(	\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\") VALUES('" + authorName + \
+        "', '"+currency+"', "+quantity+", '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S") + \
+        "', '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"')"
+    cur = conn.cursor()
+    await cur.execute(sql)
+    cur.close()
+
+
+async def UpdateCurrencyToDataBase(authorName: str, quantity: int, currency: str):
+    sql = "update \"Wallets\" set \"Quantity\" = " + quantity + " and  \"updatedAt\" = '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"' WHERE \"UserName\" = '" + authorName + \
+        "' and \"Currency\" = '" + currency + "'"
+    cur = conn.cursor()
+    await cur.execute(sql)
+    cur.close()
 
 
 @bot.command(help="get cash to virtual wallet")
@@ -91,12 +112,7 @@ async def getCash(ctx: commands.Context):
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
-        sql = "SELECT \"Quantity\" FROM \"Wallets\" WHERE \"UserName\" = '" + ctx.author.name + \
-            "' and \"Currency\" = 'eur'"
-        cur = conn.cursor()
-        cur.execute(sql)
-        records = cur.fetchone()
-        cur.close()
+        records = await GetCashFromDataBase(ctx.author.name)
         print(records)
         if records == None:
             await ctx.send(0)
@@ -104,6 +120,16 @@ async def getCash(ctx: commands.Context):
             await ctx.send(records)
     except ValueError:
         print("error : " + ValueError)
+
+
+async def GetCashFromDataBase(authorName: str, currency: str):
+    sql = "SELECT \"Quantity\" FROM \"Wallets\" WHERE \"UserName\" = '" + authorName + \
+        "' and \"Currency\" = '"+currency+"'"
+    cur = conn.cursor()
+    await cur.execute(sql)
+    records = cur.fetchone()
+    cur.close()
+    return records
 
 
 @bot.listen()
