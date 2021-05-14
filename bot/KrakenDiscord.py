@@ -92,7 +92,7 @@ async def getCash(ctx: commands.Context):
         if ctx.channel.name != CHANNEL_WORK:
             return
         sql = "SELECT \"Quantity\" FROM \"Wallets\" WHERE \"UserName\" = '" + ctx.author.name + \
-            "' and Currency = 'eur'"
+            "' and \"Currency\" = 'eur'"
         cur = conn.cursor()
         cur.execute(sql)
         records = cur.fetchone()
