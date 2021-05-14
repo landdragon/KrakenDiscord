@@ -100,20 +100,22 @@ def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'Currency': currency,
                       'Quantity': quantity, 'createdAt': datetime.now(), 'updatedAt': datetime.now()})
+    conn.commit()
     cur.close()
 
 
 def UpdateCurrencyToDataBase(authorName: str, quantity: int, currency: str):
     sql = """
                 Update \"Wallets\"
-                Set \"Quantity\" = %(Quantity)s 
-                    And  \"updatedAt\" = %(updatedAt)s
+                Set \"Quantity\" = %(Quantity)s,
+                    \"updatedAt\" = %(updatedAt)s
                 WHERE \"UserName\" = %(UserName)s 
                     And \"Currency\" = %(Currency)s;
         """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'Currency': currency,
                       'Quantity': quantity, 'updatedAt': datetime.now()})
+    conn.commit()
     cur.close()
 
 
