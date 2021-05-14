@@ -91,9 +91,10 @@ async def addCash(ctx: commands.Context, quantity: int):
 
 
 def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
-    sql = "INSERT INTO \"Wallets\"(	\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\") VALUES('" + authorName + \
-        "', '"+currency+"', "+str(quantity)+", '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S") + \
-        "', '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"')"
+    sql = """
+                INSERT INTO \"Wallets\" (\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\")
+                VALUES (%(UserName)s, %(Currency)s, %(Quantity)s, %(date)s);
+        """, {'UserName': authorName, 'Currency': currency, 'Quantity': quantity, 'createdAt': datetime.now(), 'updatedAt': datetime.now()}
     cur = conn.cursor()
     cur.execute(sql)
     cur.close()
