@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 import datetime
 import krakenex
+import psycopg2
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 HEROKU_RELEASE_VERSION = os.getenv("HEROKU_RELEASE_VERSION")
@@ -10,7 +11,14 @@ HEROKU_RELEASE_CREATED_AT = os.getenv("HEROKU_RELEASE_CREATED_AT")
 HEROKU_SLUG_DESCRIPTION = os.getenv("HEROKU_SLUG_DESCRIPTION")
 CHANNEL_WORK = os.getenv("CHANNEL_WORK")
 
+HOST = os.getenv("HostSqlHeroku")
+USER = os.getenv("UserSqlHeroku")
+PASSWORD = os.getenv("MdpSqlHeroku")
+DATABASE = os.getenv("DataSqlHeroku")
+
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
+conn = psycopg2.connect("host=%s dbname=%s user=%s password=%s" %
+                        (HOST, DATABASE, USER, PASSWORD))
 
 
 @bot.command(help="ping pong")
@@ -50,6 +58,8 @@ async def info(ctx: commands.Context):
 
 @bot.command(help="get list of pairs")
 async def pairs(ctx: commands.Context):
+    if ctx.channel.name != CHANNEL_WORK:
+        return
     kraken = krakenex.API()
     response = kraken.query_public('AssetPairs')
     assetPairs = list(response['result'])
@@ -63,12 +73,35 @@ async def pairs(ctx: commands.Context):
 
 @bot.command(help="get last transaction Price of pair")
 async def price(ctx: commands.Context, pair: str):
+    if ctx.channel.name != CHANNEL_WORK:
+        return
     kraken = krakenex.API()
     response = kraken.query_public('Ticker?pair=' + pair)
     print(response['result'])
     price = response['result'][pair]['c'][0]
     print(price)
     await ctx.send(price)
+
+
+@bot.command(help="add cash to virtual wallet")
+async def addCash(ctx: commands.Context, quantity: int):
+    if ctx.channel.name != CHANNEL_WORK:
+        return
+    await ctx.send("Done")
+
+
+@bot.command(help="get cash to virtual wallet")
+async def getCash(ctx: commands.Context, quantity: int):
+    if ctx.channel.name != CHANNEL_WORK:
+        return
+    sql = "SELECT Quantity FROM Wallets WHERE UserName = '" + ctx.author() + \
+        "' and Currency = 'eur'"
+    cur = conn.cursor()
+    cur.execute(sql)
+    records = cur.fetchone()
+    cur.close()
+    print(records)
+    await ctx.send(records)
 
 
 @bot.listen()
