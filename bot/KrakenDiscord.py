@@ -92,7 +92,7 @@ async def addCash(ctx: commands.Context, quantity: int):
 
 def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
     sql = "INSERT INTO \"Wallets\"(	\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\") VALUES('" + authorName + \
-        "', '"+currency+"', "+quantity+", '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S") + \
+        "', '"+currency+"', "+str(quantity)+", '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S") + \
         "', '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"')"
     cur = conn.cursor()
     cur.execute(sql)
@@ -100,7 +100,7 @@ def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
 
 
 def UpdateCurrencyToDataBase(authorName: str, quantity: int, currency: str):
-    sql = "update \"Wallets\" set \"Quantity\" = " + quantity + " and  \"updatedAt\" = '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"' WHERE \"UserName\" = '" + authorName + \
+    sql = "update \"Wallets\" set \"Quantity\" = " + str(quantity) + " and  \"updatedAt\" = '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"' WHERE \"UserName\" = '" + authorName + \
         "' and \"Currency\" = '" + currency + "'"
     cur = conn.cursor()
     cur.execute(sql)
