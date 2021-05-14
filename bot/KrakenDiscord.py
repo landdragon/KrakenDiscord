@@ -83,10 +83,12 @@ async def price(ctx: commands.Context, pair: str):
 async def addCash(ctx: commands.Context, quantity: int):
     if ctx.channel.name != CHANNEL_WORK:
         return
-    if GetCashFromDataBase(ctx.author.name, "eur") == None:
+    previousQuantity = GetCashFromDataBase(ctx.author.name, "eur")
+    if previousQuantity == None:
         InsertCurrencyToDataBase(ctx.author.name, quantity, "eur")
     else:
-        UpdateCurrencyToDataBase(ctx.author.name, quantity, "eur")
+        UpdateCurrencyToDataBase(
+            ctx.author.name, previousQuantity + quantity, "eur")
     await ctx.send("Done")
 
 
@@ -102,10 +104,16 @@ def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
 
 
 def UpdateCurrencyToDataBase(authorName: str, quantity: int, currency: str):
-    sql = "update \"Wallets\" set \"Quantity\" = " + str(quantity) + " and  \"updatedAt\" = '"+datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"' WHERE \"UserName\" = '" + authorName + \
-        "' and \"Currency\" = '" + currency + "'"
+    sql = """
+                Update \"Wallets\"
+                Set \"Quantity\" = %(Quantity)s 
+                    And  \"updatedAt\" = %(updatedAt)s
+                WHERE \"UserName\" = %(UserName)s 
+                    And \"Currency\" = %(Currency)s;
+        """
     cur = conn.cursor()
-    cur.execute(sql)
+    cur.execute(sql, {'UserName': authorName, 'Currency': currency,
+                      'Quantity': quantity, 'updatedAt': datetime.now()})
     cur.close()
 
 
@@ -119,7 +127,7 @@ async def getCash(ctx: commands.Context):
         if records == None:
             await ctx.send(0)
         else:
-            await ctx.send(records)
+            await ctx.send(records[0])
     except ValueError:
         print("error : " + ValueError)
 
