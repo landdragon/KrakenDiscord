@@ -94,12 +94,39 @@ async def addCash(ctx: commands.Context, quantity: int):
 
 def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
     sql = """
-                INSERT INTO \"Wallets\" (\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\")
+                INSERT INTO \"Wallets\"
+                (\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\")
                 VALUES (%(UserName)s, %(Currency)s, %(Quantity)s, %(createdAt)s, %(updatedAt)s);
         """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'Currency': currency,
                       'Quantity': quantity, 'createdAt': datetime.now(), 'updatedAt': datetime.now()})
+    conn.commit()
+    cur.close()
+
+
+def InsertOrderToDataBase(authorName: str, way: str,  quantity: int, price: float, currency: str):
+    sql = """
+                INSERT INTO "Orders"
+                (\"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\")
+	            VALUES ( %(UserName)s, %(Way)s, %(Quantity)s, %(Price)s, %(Currency)s, %(State)s, %(createdAt)s, %(updatedAt)s);
+        """
+    cur = conn.cursor()
+    cur.execute(sql, {'UserName': authorName, 'Way': way, 'Quantity': quantity, 'Price': price,
+                      'Currency': currency, 'State': "In Progress", 'createdAt': datetime.now(), 'updatedAt': datetime.now()})
+    conn.commit()
+    cur.close()
+
+
+def UpdateOrderToDataBase(id: str, state: str):
+    sql = """
+                Update "Orders"
+                set \"State\" = %(State)s,
+                    \"updatedAt\" = %(updatedAt)s
+                where id = %(id)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'id': id, 'State': state, 'updatedAt': datetime.now()})
     conn.commit()
     cur.close()
 
@@ -111,7 +138,7 @@ def UpdateCurrencyToDataBase(authorName: str, quantity: int, currency: str):
                     \"updatedAt\" = %(updatedAt)s
                 WHERE \"UserName\" = %(UserName)s 
                     And \"Currency\" = %(Currency)s;
-        """
+            """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'Currency': currency,
                       'Quantity': quantity, 'updatedAt': datetime.now()})
@@ -131,6 +158,7 @@ async def getCash(ctx: commands.Context):
         else:
             await ctx.send(records[0])
     except ValueError:
+        await ctx.send("Error")
         print("error : " + ValueError)
 
 
@@ -142,6 +170,78 @@ def GetCashFromDataBase(authorName: str, currency: str):
     records = cur.fetchone()
     cur.close()
     return records
+
+
+def GetOrdersInProgressFromDataBase(currency: str):
+    sql = """
+                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
+                From  \"Orders\"
+                WHERE \"Currency\" = %(Currency)s
+                    And \"State\" = %(State)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'Currency': currency, 'State': "In Progress"})
+    records = cur.fetchall()
+    cur.close()
+    return records
+
+
+def GetOrdersInProgressForUserFromDataBase(userName: str):
+    sql = """
+                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
+                From  \"Orders\"
+                WHERE \"UserName\" = %(UserName)s
+                    And \"State\" = %(State)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'UserName': userName, 'State': "In Progress"})
+    records = cur.fetchall()
+    cur.close()
+    return records
+
+
+@bot.command(help="add a vitual order to buy")
+async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantity: int):
+    # todo : a faire
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        InsertOrderToDataBase(ctx.author.name, "Buy",
+                              quantity, price, currency)
+        records = GetCashFromDataBase(ctx.author.name, "eur")
+        print(records)
+        await ctx.send("Done")
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
+@bot.command(help="get all virtual orders In Progress for current user")
+async def getInProgressOrdersVirtual(ctx: commands.Context):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        records = GetOrdersInProgressForUserFromDataBase(ctx.author.name)
+        for record in records:
+            embed = discord.Embed(title=f"Orders", description="ordes description",
+                                  timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
+
+            embed.add_field(name="id",
+                            value=record[0])
+            embed.add_field(name="Way",
+                            value=record[2])
+            embed.add_field(name="Quantity",
+                            value=record[3])
+            embed.add_field(name="Price",
+                            value=record[4])
+            embed.add_field(name="Currency",
+                            value=record[5])
+            embed.add_field(name="createdAt",
+                            value=record[7])
+            await ctx.send(embed=embed)
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
 
 
 @bot.listen()
