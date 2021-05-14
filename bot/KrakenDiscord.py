@@ -98,7 +98,10 @@ async def getCash(ctx: commands.Context):
         records = cur.fetchone()
         cur.close()
         print(records)
-        await ctx.send(records)
+        if records == None:
+            await ctx.send(0)
+        else:
+            await ctx.send(records)
     except ValueError:
         print("error : " + ValueError)
 
