@@ -223,21 +223,21 @@ async def getInProgressOrdersVirtual(ctx: commands.Context):
             return
         records = GetOrdersInProgressForUserFromDataBase(ctx.author.name)
         for record in records:
-            embed = discord.Embed(title=f"Orders", description="ordes description",
-                                  timestamp=datetime.utcnow(), color=discord.Color.blue())
+            embed = discord.Embed(title=f"Orders",
+                                  timestamp=datetime.utcnow(), color=discord.Color.red())
 
             embed.add_field(name="id",
-                            value=record[0])
+                            value=record[0], inline=True)
             embed.add_field(name="Way",
-                            value=record[2])
+                            value=record[2], inline=True)
             embed.add_field(name="Quantity",
-                            value=record[3])
+                            value=record[3], inline=True)
             embed.add_field(name="Price",
-                            value=record[4])
+                            value=record[4], inline=True)
             embed.add_field(name="Currency",
-                            value=record[5])
+                            value=record[5], inline=True)
             embed.add_field(name="createdAt",
-                            value=record[7])
+                            value=record[7], inline=True)
             await ctx.send(embed=embed)
         await ctx.send("End")
     except ValueError:
