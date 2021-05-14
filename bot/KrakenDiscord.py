@@ -88,7 +88,7 @@ async def addCash(ctx: commands.Context, quantity: int):
         InsertCurrencyToDataBase(ctx.author.name, quantity, "eur")
     else:
         UpdateCurrencyToDataBase(
-            ctx.author.name, previousQuantity + quantity, "eur")
+            ctx.author.name, previousQuantity[0] + quantity, "eur")
     await ctx.send("Done")
 
 
