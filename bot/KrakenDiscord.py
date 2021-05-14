@@ -112,7 +112,7 @@ async def getCash(ctx: commands.Context):
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
-        records = await GetCashFromDataBase(ctx.author.name)
+        records = await GetCashFromDataBase(ctx.author.name, "eur")
         print(records)
         if records == None:
             await ctx.send(0)
