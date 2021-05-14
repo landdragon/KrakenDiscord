@@ -11,14 +11,10 @@ HEROKU_RELEASE_CREATED_AT = os.getenv("HEROKU_RELEASE_CREATED_AT")
 HEROKU_SLUG_DESCRIPTION = os.getenv("HEROKU_SLUG_DESCRIPTION")
 CHANNEL_WORK = os.getenv("CHANNEL_WORK")
 
-HOST = os.getenv("HostSqlHeroku")
-USER = os.getenv("UserSqlHeroku")
-PASSWORD = os.getenv("MdpSqlHeroku")
-DATABASE = os.getenv("DataSqlHeroku")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
-conn = psycopg2.connect("host=%s dbname=%s user=%s password=%s" %
-                        (HOST, DATABASE, USER, PASSWORD))
+conn = psycopg2.connect(DATABASE_URL)
 
 
 @bot.command(help="ping pong")
