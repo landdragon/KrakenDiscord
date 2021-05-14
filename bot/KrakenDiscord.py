@@ -239,6 +239,7 @@ async def getInProgressOrdersVirtual(ctx: commands.Context):
             embed.add_field(name="createdAt",
                             value=record[7])
             await ctx.send(embed=embed)
+        await ctx.send("End")
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
