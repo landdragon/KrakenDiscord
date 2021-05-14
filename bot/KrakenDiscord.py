@@ -1,9 +1,9 @@
 import discord
 from discord.ext import commands
 import os
-import datetime
 import krakenex
 import psycopg2
+from datetime import datetime
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 HEROKU_RELEASE_VERSION = os.getenv("HEROKU_RELEASE_VERSION")
