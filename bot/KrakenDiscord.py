@@ -29,7 +29,6 @@ async def ping(ctx: commands.Context):
 @bot.command(help="where I should request this bot")
 async def where(ctx: commands.Context):
     print("where")
-    print(ctx.channel.name != CHANNEL_WORK)
     await ctx.send("The commande will work at " + CHANNEL_WORK + "and you are at " + ctx.channel.name + ". you are not at the good place ? " +
                    ctx.channel.name != CHANNEL_WORK)
 
@@ -60,11 +59,9 @@ async def pairs(ctx: commands.Context):
     kraken = krakenex.API()
     response = kraken.query_public('AssetPairs')
     assetPairs = list(response['result'])
-    print(assetPairs)
     shouldContain = 'eur'
     eurAssetPairs = [
         s for s in assetPairs if shouldContain.lower() in s.lower()]
-    print(eurAssetPairs)
     await ctx.send(eurAssetPairs)
 
 
@@ -74,9 +71,7 @@ async def price(ctx: commands.Context, pair: str):
         return
     kraken = krakenex.API()
     response = kraken.query_public('Ticker?pair=' + pair)
-    print(response['result'])
     price = response['result'][pair]['c'][0]
-    print(price)
     await ctx.send(price)
 
 
@@ -153,7 +148,6 @@ async def getCash(ctx: commands.Context):
         if ctx.channel.name != CHANNEL_WORK:
             return
         records = GetCashFromDataBase(ctx.author.name, "eur")
-        print(records)
         if records == None:
             await ctx.send(0)
         else:
@@ -236,7 +230,6 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
         InsertOrderToDataBase(ctx.author.name, "Buy",
                               quantity, price, currency)
         records = GetCashFromDataBase(ctx.author.name, "eur")
-        print(records)
         await ctx.send("Done")
     except ValueError:
         await ctx.send("Error")
@@ -295,7 +288,6 @@ async def batch_Notification():
                 print(GetOrderFromDataBase(order[0]))
     previousOrder = currentOrder
     print("loop")
-    print(previousOrder)
 
 
 @bot.listen()
@@ -313,6 +305,9 @@ async def on_ready():
 
 
 def exit_gracefully(signum, frame):
+    print(bot.user.name)
+    print("[OFF]")
+    print('- - - - - - - -')
     batch_Notification.stop()
 
 
