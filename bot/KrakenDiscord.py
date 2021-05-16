@@ -294,6 +294,7 @@ async def batch_Notification():
                 print(GetOrderFromDataBase(order[0]))
     previousOrder = currentOrder
     print("loop")
+    print(previousOrder)
 
 
 @bot.listen()
