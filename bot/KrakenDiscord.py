@@ -257,7 +257,7 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
         print("error : " + ValueError)
 
 
-@tasks.loop(minutes=5.0)
+@tasks.loop(seconds=5.0)
 async def batch(self):
     print("loop")
 
@@ -267,5 +267,6 @@ async def on_ready():
     print(bot.user.name)
     print("[ON]")
     print('- - - - - - - -')
+    batch.start()
 
 bot.run(TOKEN)
