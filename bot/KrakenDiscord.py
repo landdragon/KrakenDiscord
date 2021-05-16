@@ -258,7 +258,7 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
 
 
 @tasks.loop(seconds=5.0)
-async def batch(self):
+async def batch():
     print("loop")
 
 
