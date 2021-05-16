@@ -207,7 +207,7 @@ def GetWalletFromDataBase(authorName: str):
     sql = """"
                 SELECT id, \"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\"
                 FROM \"Wallets\"
-                WHERE \"UserName\" = '" + %(authorName)s;
+                WHERE \"UserName\" = %(authorName)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'authorName': authorName})
