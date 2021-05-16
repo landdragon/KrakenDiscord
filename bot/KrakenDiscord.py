@@ -15,6 +15,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 conn = psycopg2.connect(DATABASE_URL)
+previousOrder = None
 
 
 @bot.command(help="ping pong")
@@ -200,6 +201,32 @@ def GetOrdersInProgressForUserFromDataBase(userName: str):
     return records
 
 
+def GetOrdersInProgressForUsersFromDataBase():
+    sql = """
+                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
+                From  \"Orders\"
+                WHERE \"State\" = %(State)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'State': "In Progress"})
+    records = cur.fetchall()
+    cur.close()
+    return records
+
+
+def GetOrderFromDataBase(id: int):
+    sql = """
+                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
+                From  \"Orders\"
+                WHERE \"id\" = %(id)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'id': id})
+    record = cur.fetchone()
+    cur.close()
+    return record
+
+
 @bot.command(help="add a vitual order to buy")
 async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantity: int):
     # todo : a faire
@@ -259,6 +286,14 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
 
 @tasks.loop(seconds=5.0)
 async def batch():
+
+    currentOrder = GetOrdersInProgressForUsersFromDataBase()
+    if previousOrder != None:
+        for order in previousOrder:
+            result = any(newOrder[0] == order[0] for newOrder in currentOrder)
+            if result != True:
+                print(GetOrderFromDataBase(order[0]))
+    previousOrder = currentOrder
     print("loop")
 
 
