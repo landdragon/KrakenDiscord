@@ -185,6 +185,7 @@ async def getWalletVirtual(ctx: commands.Context):
         else:
             for walletLine in walletLines:
                 if int(walletLine[3]) > 0:
+                    print(walletLine)
                     embed = discord.Embed(title=walletLine[2],
                                           timestamp=datetime(walletLine[5]), color=discord.Color.red())
                     embed.add_field(name="Quantity",
