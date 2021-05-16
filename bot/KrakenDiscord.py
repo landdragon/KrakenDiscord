@@ -4,6 +4,7 @@ import os
 import krakenex
 import psycopg2
 from datetime import datetime
+import signal
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 HEROKU_RELEASE_VERSION = os.getenv("HEROKU_RELEASE_VERSION")
@@ -303,17 +304,16 @@ async def on_ready():
     print("[ON]")
     print('- - - - - - - -')
 
+    signal.signal(signal.SIGINT, exit_gracefully)
+    signal.signal(signal.SIGTERM, exit_gracefully)
+
     global previousOrder
     previousOrder = None
     batch_Notification.start()
 
 
-@bot.listen()
-async def on_disconnect():
-    print(bot.user.name)
-    print("[OFF]")
-    print('- - - - - - - -')
-
+def exit_gracefully(signum, frame):
     batch_Notification.stop()
+
 
 bot.run(TOKEN)
