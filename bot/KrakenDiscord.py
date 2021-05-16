@@ -245,6 +245,18 @@ async def getInProgressOrdersVirtual(ctx: commands.Context):
         print("error : " + ValueError)
 
 
+@bot.command(help="cancel a virtual orders")
+async def cancelOrder(ctx: commands.Context, orderId : int):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        UpdateOrderToDataBase(orderId, "Cancel")
+        await ctx.send("Done")
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
 @bot.listen()
 async def on_ready():
     print(bot.user.name)
