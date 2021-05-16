@@ -280,12 +280,18 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
 @tasks.loop(seconds=5.0)
 async def batch_Notification():
     global previousOrder
+    ChannelNotif = None
+    for Channel in bot.get_all_channels():
+        if Channel.name == "notification-virtual":
+            ChannelNotif = Channel
     currentOrder = GetOrdersInProgressForUsersFromDataBase()
     if previousOrder != None:
         for order in previousOrder:
             result = any(newOrder[0] == order[0] for newOrder in currentOrder)
             if result != True:
                 print(GetOrderFromDataBase(order[0]))
+                if ChannelNotif != None:
+                    await ChannelNotif.send("notif")
     previousOrder = currentOrder
     print("loop")
 
