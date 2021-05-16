@@ -204,13 +204,13 @@ def GetQuantityForCurrencyFromDataBase(authorName: str, currency: str):
 
 
 def GetWalletFromDataBase(authorName: str):
-    sql = """"
+    sql = """
                 SELECT id, \"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\"
                 FROM \"Wallets\"
-                WHERE \"UserName\" = %(authorName)s;
+                WHERE \"UserName\" = %(UserName)s;
             """
     cur = conn.cursor()
-    cur.execute(sql, {'authorName': authorName})
+    cur.execute(sql, {'UserName': authorName})
     records = cur.fetchall()
     cur.close()
     return records
