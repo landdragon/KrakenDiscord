@@ -246,7 +246,7 @@ async def getInProgressOrdersVirtual(ctx: commands.Context):
 
 
 @bot.command(help="cancel a virtual orders")
-async def cancelOrder(ctx: commands.Context, orderId : int):
+async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
