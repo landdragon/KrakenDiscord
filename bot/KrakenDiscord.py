@@ -283,9 +283,13 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
         if result != True:
             await ctx.send("Error : Wrong Currency name")
             return
+        result = GetQuantityForCurrencyFromDataBase(ctx.author.name, "eur")
+        if int(result) < price*quantity:
+            await ctx.send("Error : not enouth Eur")
+            return
+
         InsertOrderToDataBase(ctx.author.name, CONST_BUY,
                               quantity, price, currency)
-        records = GetWalletFromDataBase(ctx.author.name, "eur")
         await ctx.send("Done")
     except ValueError:
         await ctx.send("Error")
@@ -345,7 +349,6 @@ async def batch_NotificationVirtual():
         for order in previousOrder:
             result = any(newOrder[0] == order[0] for newOrder in currentOrder)
             if result != True:
-                print(GetOrderFromDataBase(order[0]))
                 if ChannelNotif != None:
                     await ChannelNotif.send(order[1] + " your order (way : " + order[2] + ", price : " + order[4] + ", Quantity : " + order[3] + ") is " + order[6])
     previousOrder = currentOrder
@@ -367,9 +370,12 @@ async def batch_VirtualExecution():
             if order[2] == CONST_BUY and currentPrice < float(order[4]):
                 UpdateOrderToDataBase(order[0], "Executed")
                 addCurrencyToDataBase(order[1], order[3], order[5])
+                addCurrencyToDataBase(order[1], order[3]*order[4]*-1, "eur")
             elif order[2] == CONST_SELL and currentPrice > float(order[4]):
                 UpdateOrderToDataBase(order[0], "Executed")
-                addCurrencyToDataBase(order[1], order[3], int(order[5])*-1)
+                addCurrencyToDataBase(order[1], order[3]*-1, int(order[5]))
+                addCurrencyToDataBase(
+                    order[1], order[3]*order[4], int(order[5]))
 
 
 @bot.listen()
