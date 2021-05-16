@@ -284,7 +284,7 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
             await ctx.send("Error : Wrong Currency name")
             return
         result = GetQuantityForCurrencyFromDataBase(ctx.author.name, "eur")
-        if int(result) < price*quantity:
+        if int(result[0]) < price*quantity:
             await ctx.send("Error : not enouth Eur")
             return
 
