@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import os
 import krakenex
 import psycopg2
@@ -255,6 +255,11 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
+
+
+@tasks.loop(minutes=5.0)
+async def batch(self):
+    print("loop")
 
 
 @bot.listen()
