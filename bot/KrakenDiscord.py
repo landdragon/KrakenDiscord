@@ -166,7 +166,7 @@ async def getCash(ctx: commands.Context):
         walletLine = GetQuantityForCurrencyFromDataBase(ctx.author.name, "eur")
 
         if walletLine == None:
-            await ctx.send("Empty")
+            await ctx.send(0)
         else:
             await ctx.send(walletLine[0])
     except ValueError:
@@ -180,14 +180,15 @@ async def getWalletVirtual(ctx: commands.Context):
         if ctx.channel.name != CHANNEL_WORK:
             return
         walletLines = GetWalletFromDataBase(ctx.author.name)
-        if walletLines == None:
-            await ctx.send(0)
+        if any(int(walletLine[3]) > 0 for walletLine in walletLines) == False:
+            await ctx.send("Empty")
         else:
             for walletLine in walletLines:
-                embed = discord.Embed(title=walletLine[2],
-                                      timestamp=walletLine[5], color=discord.Color.red())
-                embed.add_field(name="Quantity ",
-                                value=walletLine[3], inline=True)
+                if int(walletLine[3]) > 0:
+                    embed = discord.Embed(title=walletLine[2],
+                                          timestamp=datetime(walletLine[5]), color=discord.Color.red())
+                    embed.add_field(name="Quantity",
+                                    value=walletLine[3], inline=True)
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
@@ -389,6 +390,7 @@ def exit_gracefully(signum, frame):
     print(bot.user.name)
     print("[OFF]")
     print('- - - - - - - -')
+
     batch_NotificationVirtual.stop()
     batch_VirtualExecution.stop()
 
