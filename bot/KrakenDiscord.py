@@ -11,6 +11,8 @@ HEROKU_RELEASE_VERSION = os.getenv("HEROKU_RELEASE_VERSION")
 HEROKU_RELEASE_CREATED_AT = os.getenv("HEROKU_RELEASE_CREATED_AT")
 HEROKU_SLUG_DESCRIPTION = os.getenv("HEROKU_SLUG_DESCRIPTION")
 CHANNEL_WORK = os.getenv("CHANNEL_WORK")
+CONST_BUY = "Buy"
+CONST_SELL = "Sell"
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -56,36 +58,50 @@ async def info(ctx: commands.Context):
 async def pairs(ctx: commands.Context):
     if ctx.channel.name != CHANNEL_WORK:
         return
+    eurAssetPairs = GetPairsName()
+    await ctx.send(eurAssetPairs)
+
+
+def GetPairsName():
     kraken = krakenex.API()
     response = kraken.query_public('AssetPairs')
     assetPairs = list(response['result'])
     shouldContain = 'eur'
     eurAssetPairs = [
         s for s in assetPairs if shouldContain.lower() in s.lower()]
-    await ctx.send(eurAssetPairs)
+    return eurAssetPairs
 
 
 @bot.command(help="get last transaction Price of pair")
 async def price(ctx: commands.Context, pair: str):
     if ctx.channel.name != CHANNEL_WORK:
         return
+    price = GetPriceOfPair(pair)
+    await ctx.send(price)
+
+
+def GetPriceOfPair(pair: str):
     kraken = krakenex.API()
     response = kraken.query_public('Ticker?pair=' + pair)
     price = response['result'][pair]['c'][0]
-    await ctx.send(price)
+    return price
 
 
 @bot.command(help="add cash to virtual wallet")
 async def addCash(ctx: commands.Context, quantity: int):
     if ctx.channel.name != CHANNEL_WORK:
         return
-    previousQuantity = GetCashFromDataBase(ctx.author.name, "eur")
+    addCurrencyToDataBase(ctx.author.name, quantity, "eur")
+    await ctx.send("Done")
+
+
+def addCurrencyToDataBase(userName, quantity, currency):
+    previousQuantity = GetCashFromDataBase(userName, currency)
     if previousQuantity == None:
-        InsertCurrencyToDataBase(ctx.author.name, quantity, "eur")
+        InsertCurrencyToDataBase(userName, quantity, currency)
     else:
         UpdateCurrencyToDataBase(
-            ctx.author.name, previousQuantity[0] + quantity, "eur")
-    await ctx.send("Done")
+            userName, previousQuantity[0] + quantity, currency)
 
 
 def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
@@ -227,7 +243,12 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
-        InsertOrderToDataBase(ctx.author.name, "Buy",
+        pairs = GetPairsName()
+        result = any(pair == currency for pair in pairs)
+        if result != True:
+            await ctx.send("Error : Wrong Currency name")
+            return
+        InsertOrderToDataBase(ctx.author.name, CONST_BUY,
                               quantity, price, currency)
         records = GetCashFromDataBase(ctx.author.name, "eur")
         await ctx.send("Done")
@@ -293,7 +314,27 @@ async def batch_Notification():
                 if ChannelNotif != None:
                     await ChannelNotif.send("notif")
     previousOrder = currentOrder
-    print("loop")
+
+
+@tasks.loop(seconds=5.0)
+async def batch_VirtualExecution():
+    orders = GetOrdersInProgressForUsersFromDataBase()
+    currencies = (o[5] for o in orders)
+    currencies = list(dict.fromkeys(currencies))
+    dic = {}
+    for x in currencies:
+        dic[x] = []
+    for x in orders:
+        dic[x[5]].append(x)
+    for pairName in dic:
+        currentPrice = GetPriceOfPair(pairName)
+        for order in dic[pairName]:
+            if order[2] == CONST_BUY and currentPrice > float(order[4]):
+                UpdateOrderToDataBase(order[0], "Executed")
+                addCurrencyToDataBase(order[1], order[3], order[5])
+            elif order[2] == CONST_SELL and currentPrice < float(order[4]):
+                UpdateOrderToDataBase(order[0], "Executed")
+                addCurrencyToDataBase(order[1], order[3], int(order[5])*-1)
 
 
 @bot.listen()
@@ -308,6 +349,7 @@ async def on_ready():
     global previousOrder
     previousOrder = None
     batch_Notification.start()
+    batch_VirtualExecution.start()
 
 
 def exit_gracefully(signum, frame):
@@ -315,6 +357,7 @@ def exit_gracefully(signum, frame):
     print("[OFF]")
     print('- - - - - - - -')
     batch_Notification.stop()
+    batch_VirtualExecution.stop()
 
 
 bot.run(TOKEN)
