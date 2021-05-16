@@ -96,7 +96,7 @@ async def addCash(ctx: commands.Context, quantity: int):
 
 
 def addCurrencyToDataBase(userName, quantity, currency):
-    previousQuantity = GetCashFromDataBase(userName, currency)
+    previousQuantity = GetQuantityForCurrencyFromDataBase(userName, currency)
     if previousQuantity == None:
         InsertCurrencyToDataBase(userName, quantity, currency)
     else:
@@ -163,22 +163,55 @@ async def getCash(ctx: commands.Context):
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
-        records = GetCashFromDataBase(ctx.author.name, "eur")
-        if records == None:
-            await ctx.send(0)
+        walletLine = GetQuantityForCurrencyFromDataBase(ctx.author.name, "eur")
+
+        if walletLine == None:
+            await ctx.send("Empty")
         else:
-            await ctx.send(records[0])
+            await ctx.send(walletLine[0])
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
 
 
-def GetCashFromDataBase(authorName: str, currency: str):
+@bot.command(help="get wallet to virtual wallet")
+async def getWalletVirtual(ctx: commands.Context):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        walletLines = GetWalletFromDataBase(ctx.author.name)
+        if walletLines == None:
+            await ctx.send(0)
+        else:
+            for walletLine in walletLines:
+                embed = discord.Embed(title=walletLine[2],
+                                      timestamp=walletLine[5], color=discord.Color.red())
+                embed.add_field(name="Quantity ",
+                                value=walletLine[3], inline=True)
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
+def GetQuantityForCurrencyFromDataBase(authorName: str, currency: str):
     sql = "SELECT \"Quantity\" FROM \"Wallets\" WHERE \"UserName\" = '" + authorName + \
         "' and \"Currency\" = '"+currency+"'"
     cur = conn.cursor()
     cur.execute(sql)
     records = cur.fetchone()
+    cur.close()
+    return records
+
+
+def GetWalletFromDataBase(authorName: str):
+    sql = """"
+                SELECT id, \"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\"
+                FROM \"Wallets\"
+                WHERE \"UserName\" = '" + %(authorName)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'authorName': authorName})
+    records = cur.fetchall()
     cur.close()
     return records
 
@@ -250,7 +283,7 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
             return
         InsertOrderToDataBase(ctx.author.name, CONST_BUY,
                               quantity, price, currency)
-        records = GetCashFromDataBase(ctx.author.name, "eur")
+        records = GetWalletFromDataBase(ctx.author.name, "eur")
         await ctx.send("Done")
     except ValueError:
         await ctx.send("Error")
@@ -299,7 +332,7 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
 
 
 @tasks.loop(seconds=1.0)
-async def batch_Notification():
+async def batch_NotificationVirtual():
     global previousOrder
     ChannelNotif = None
     for Channel in bot.get_all_channels():
@@ -312,7 +345,7 @@ async def batch_Notification():
             if result != True:
                 print(GetOrderFromDataBase(order[0]))
                 if ChannelNotif != None:
-                    await ChannelNotif.send("notif")
+                    await ChannelNotif.send(order[1] + " your order (way : " + order[2] + ", price : " + order[4] + ", Quantity : " + order[3] + ") is " + order[6])
     previousOrder = currentOrder
 
 
@@ -348,7 +381,7 @@ async def on_ready():
 
     global previousOrder
     previousOrder = None
-    batch_Notification.start()
+    batch_NotificationVirtual.start()
     batch_VirtualExecution.start()
 
 
@@ -356,7 +389,7 @@ def exit_gracefully(signum, frame):
     print(bot.user.name)
     print("[OFF]")
     print('- - - - - - - -')
-    batch_Notification.stop()
+    batch_NotificationVirtual.stop()
     batch_VirtualExecution.stop()
 
 
