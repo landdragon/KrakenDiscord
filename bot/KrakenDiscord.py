@@ -80,10 +80,10 @@ async def price(ctx: commands.Context, pair: str):
     await ctx.send(price)
 
 
-def GetPriceOfPair(pair: str):
+def GetPriceOfPair(pair: str) -> float:
     kraken = krakenex.API()
     response = kraken.query_public('Ticker?pair=' + pair)
-    price = response['result'][pair]['c'][0]
+    price = float(response['result'][pair]['c'][0])
     return price
 
 
@@ -298,7 +298,7 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
         print("error : " + ValueError)
 
 
-@tasks.loop(seconds=5.0)
+@tasks.loop(seconds=1.0)
 async def batch_Notification():
     global previousOrder
     ChannelNotif = None
@@ -329,10 +329,10 @@ async def batch_VirtualExecution():
     for pairName in dic:
         currentPrice = GetPriceOfPair(pairName)
         for order in dic[pairName]:
-            if order[2] == CONST_BUY and currentPrice > float(order[4]):
+            if order[2] == CONST_BUY and currentPrice < float(order[4]):
                 UpdateOrderToDataBase(order[0], "Executed")
                 addCurrencyToDataBase(order[1], order[3], order[5])
-            elif order[2] == CONST_SELL and currentPrice < float(order[4]):
+            elif order[2] == CONST_SELL and currentPrice > float(order[4]):
                 UpdateOrderToDataBase(order[0], "Executed")
                 addCurrencyToDataBase(order[1], order[3], int(order[5])*-1)
 
