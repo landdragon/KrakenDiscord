@@ -306,4 +306,13 @@ async def on_ready():
     previousOrder = None
     batch_Notification.start()
 
+
+@bot.listen()
+async def on_disconnect():
+    print(bot.user.name)
+    print("[OFF]")
+    print('- - - - - - - -')
+
+    batch_Notification.stop()
+
 bot.run(TOKEN)
