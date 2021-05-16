@@ -15,7 +15,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 conn = psycopg2.connect(DATABASE_URL)
-previousOrder = None
 
 
 @bot.command(help="ping pong")
@@ -285,8 +284,8 @@ async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
 
 
 @tasks.loop(seconds=5.0)
-async def batch():
-
+async def batch_Notification():
+    global previousOrder
     currentOrder = GetOrdersInProgressForUsersFromDataBase()
     if previousOrder != None:
         for order in previousOrder:
@@ -302,6 +301,9 @@ async def on_ready():
     print(bot.user.name)
     print("[ON]")
     print('- - - - - - - -')
-    batch.start()
+
+    global previousOrder
+    previousOrder = None
+    batch_Notification.start()
 
 bot.run(TOKEN)
