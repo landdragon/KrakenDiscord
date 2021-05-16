@@ -188,7 +188,7 @@ async def getWalletVirtual(ctx: commands.Context):
                     print(walletLine)
                     print(type(walletLine[5]))
                     embed = discord.Embed(title=walletLine[2],
-                                          timestamp=datetime(walletLine[5]), color=discord.Color.red())
+                                          timestamp=walletLine[5], color=discord.Color.red())
                     embed.add_field(name="Quantity",
                                     value=walletLine[3], inline=True)
     except ValueError:
