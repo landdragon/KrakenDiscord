@@ -130,6 +130,34 @@ def InsertOrderToDataBase(authorName: str, way: str,  quantity: float, price: fl
     cur.close()
 
 
+def InsertVirtualRuleToDataBase(authorName: str, currency: str,  allocatedBudget: float, buyPercent: float, sellPercent: float, startPrice: float):
+    sql = """
+                INSERT INTO "VirtualRules"
+                ("UserName", "Currency", "AllocatedBudget", "BuyPercent", "SellPercent", "StartPrice", "IsActif", "createdAt", "updatedAt")
+	            VALUES (    %(UserName)s, %(Currency)s, %(AllocatedBudget)s, %(BuyPercent)s, %(SellPercent)s, %(StartPrice)s,
+                            %(IsActif)s, %(createdAt)s, %(updatedAt)s);
+        """
+    cur = conn.cursor()
+    cur.execute(sql, {'UserName': authorName, 'Currency': currency, 'AllocatedBudget': allocatedBudget, 'BuyPercent': buyPercent,
+                      'SellPercent': sellPercent, 'StartPrice': startPrice, 'IsActif': False,
+                      'createdAt': datetime.now(), 'updatedAt': datetime.now()})
+    conn.commit()
+    cur.close()
+
+
+def GetVirtualRuleToDataBase(authorName: str):
+    sql = """
+                SELECT id, "UserName", "Currency", "AllocatedBudget", "BuyPercent", "SellPercent", "StartPrice", "IsActif", "createdAt", "updatedAt"
+	            FROM "VirtualRules"
+                WHERE "UserName" = %(UserName)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'UserName': authorName})
+    records = cur.fetchall()
+    cur.close()
+    return records
+
+
 def UpdateOrderToDataBase(id: str, state: str):
     sql = """
                 Update "Orders"
@@ -196,10 +224,14 @@ async def getWalletVirtual(ctx: commands.Context):
 
 
 def GetQuantityForCurrencyFromDataBase(authorName: str, currency: str):
-    sql = "SELECT \"Quantity\" FROM \"Wallets\" WHERE \"UserName\" = '" + authorName + \
-        "' and \"Currency\" = '"+currency+"'"
+    sql = """
+                SELECT \"Quantity\"
+                FROM \"Wallets\"
+                WHERE \"UserName\" = %(UserName)s
+                AND \"Currency\" = %(Currency)s;
+            """
     cur = conn.cursor()
-    cur.execute(sql)
+    cur.execute(sql, {'UserName': authorName, 'UserName': currency})
     records = cur.fetchone()
     cur.close()
     return records
@@ -289,6 +321,48 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
 
         InsertOrderToDataBase(ctx.author.name, CONST_BUY,
                               quantity, price, currency)
+        await ctx.send("Done")
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
+@bot.command(help="add a vitual rules for bot")
+async def addRuleVirtual(ctx: commands.Context, currency: str, allocatedBudget: float, buyPercent: float, sellPercent: float, startPrice: float):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        InsertVirtualRuleToDataBase(ctx.author.name, currency,
+                                    allocatedBudget, buyPercent, sellPercent, startPrice)
+        await ctx.send("Done")
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
+@bot.command(help="show a vitual rules for bot")
+async def showRuleVirtual(ctx: commands.Context):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        rules = GetVirtualRuleToDataBase(ctx.author.name)
+        if rules != None:
+            for rule in rules:
+                embed = discord.Embed(title=f"Rules",
+                                      timestamp=rule[9], color=discord.Color.red())
+                embed.add_field(name="id",
+                                value=rule[0], inline=True)
+                embed.add_field(name="AllocatedBudget",
+                                value=rule[3], inline=True)
+                embed.add_field(name="BuyPercent",
+                                value=rule[4], inline=True)
+                embed.add_field(name="SellPercent",
+                                value=rule[5], inline=True)
+                embed.add_field(name="StartPrice",
+                                value=rule[6], inline=True)
+                embed.add_field(name="IsActif",
+                                value=rule[7], inline=True)
+                await ctx.send(embed=embed)
         await ctx.send("Done")
     except ValueError:
         await ctx.send("Error")
@@ -391,13 +465,13 @@ async def batch_VirtualExecution():
         currentPrice = GetPriceOfPair(pairName)
         for order in dic[pairName]:
             if order[2] == CONST_BUY and currentPrice < float(order[4]):
-                UpdateOrderToDataBase(order[0], "Executed")
                 addCurrencyToDataBase(order[1], order[3], order[5])
                 addCurrencyToDataBase(order[1], order[3]*order[4]*-1, "eur")
-            elif order[2] == CONST_SELL and currentPrice > float(order[4]):
                 UpdateOrderToDataBase(order[0], "Executed")
+            elif order[2] == CONST_SELL and currentPrice > float(order[4]):
                 addCurrencyToDataBase(order[1], order[3]*-1, order[5])
                 addCurrencyToDataBase(order[1], order[3]*order[4], "eur")
+                UpdateOrderToDataBase(order[0], "Executed")
 
 
 @bot.listen()
