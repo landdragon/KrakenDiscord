@@ -88,7 +88,7 @@ def GetPriceOfPair(pair: str) -> float:
 
 
 @bot.command(help="add cash to virtual wallet")
-async def addCash(ctx: commands.Context, quantity: int):
+async def addCash(ctx: commands.Context, quantity: float):
     if ctx.channel.name != CHANNEL_WORK:
         return
     addCurrencyToDataBase(ctx.author.name, quantity, "eur")
@@ -104,7 +104,7 @@ def addCurrencyToDataBase(userName, quantity, currency):
             userName, previousQuantity[0] + quantity, currency)
 
 
-def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
+def InsertCurrencyToDataBase(authorName: str, quantity: float, currency: str):
     sql = """
                 INSERT INTO \"Wallets\"
                 (\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\")
@@ -117,7 +117,7 @@ def InsertCurrencyToDataBase(authorName: str, quantity: int, currency: str):
     cur.close()
 
 
-def InsertOrderToDataBase(authorName: str, way: str,  quantity: int, price: float, currency: str):
+def InsertOrderToDataBase(authorName: str, way: str,  quantity: float, price: float, currency: str):
     sql = """
                 INSERT INTO "Orders"
                 (\"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\")
@@ -143,7 +143,7 @@ def UpdateOrderToDataBase(id: str, state: str):
     cur.close()
 
 
-def UpdateCurrencyToDataBase(authorName: str, quantity: int, currency: str):
+def UpdateCurrencyToDataBase(authorName: str, quantity: float, currency: str):
     sql = """
                 Update \"Wallets\"
                 Set \"Quantity\" = %(Quantity)s,
@@ -180,11 +180,11 @@ async def getWalletVirtual(ctx: commands.Context):
         if ctx.channel.name != CHANNEL_WORK:
             return
         walletLines = GetWalletFromDataBase(ctx.author.name)
-        if any(int(walletLine[3]) > 0 for walletLine in walletLines) == False:
+        if any(walletLine[3] > 0 for walletLine in walletLines) == False:
             await ctx.send("Empty")
         else:
             for walletLine in walletLines:
-                if int(walletLine[3]) > 0:
+                if walletLine[3] > 0:
                     embed = discord.Embed(title=walletLine[2],
                                           timestamp=walletLine[5], color=discord.Color.red())
                     embed.add_field(name="Quantity",
@@ -273,7 +273,7 @@ def GetOrderFromDataBase(id: int):
 
 
 @bot.command(help="add a vitual order to buy")
-async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantity: int):
+async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantity: float):
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
@@ -283,7 +283,7 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
             await ctx.send("Error : Wrong Currency name")
             return
         result = GetQuantityForCurrencyFromDataBase(ctx.author.name, "eur")
-        if int(result[0]) < price*quantity:
+        if result[0] < price*quantity:
             await ctx.send("Error : not enouth Eur")
             return
 
@@ -296,7 +296,7 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
 
 
 @bot.command(help="sell a vitual order to buy")
-async def sellVirtual(ctx: commands.Context, currency: str, price: float, quantity: int):
+async def sellVirtual(ctx: commands.Context, currency: str, price: float, quantity: float):
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
@@ -306,7 +306,7 @@ async def sellVirtual(ctx: commands.Context, currency: str, price: float, quanti
             await ctx.send("Error : Wrong Currency name")
             return
         result = GetQuantityForCurrencyFromDataBase(ctx.author.name, currency)
-        if int(result[0]) < quantity:
+        if result[0] < quantity:
             await ctx.send("Error : not enouth " + currency)
             return
 
