@@ -307,7 +307,7 @@ async def sellVirtual(ctx: commands.Context, currency: str, price: float, quanti
             return
         result = GetQuantityForCurrencyFromDataBase(ctx.author.name, currency)
         if int(result[0]) < quantity:
-            await ctx.send("Error : not enouth "+ currency)
+            await ctx.send("Error : not enouth " + currency)
             return
 
         InsertOrderToDataBase(ctx.author.name, CONST_SELL,
@@ -316,6 +316,7 @@ async def sellVirtual(ctx: commands.Context, currency: str, price: float, quanti
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
+
 
 @bot.command(help="get all virtual orders In Progress for current user")
 async def getInProgressOrdersVirtual(ctx: commands.Context):
@@ -371,7 +372,8 @@ async def batch_NotificationVirtual():
             result = any(newOrder[0] == order[0] for newOrder in currentOrder)
             if result != True:
                 if ChannelNotif != None:
-                    await ChannelNotif.send(str(order[1]) + " your order (way : " + order[2] + ", price : " + str(order[4]) + ", Quantity : " + str(order[3]) + ") is " + order[6])
+                    orderToDisplay = GetOrderFromDataBase(order[0])
+                    await ChannelNotif.send(str(orderToDisplay[1]) + " your order (way : " + orderToDisplay[2] + ", price : " + str(orderToDisplay[4]) + ", Quantity : " + str(orderToDisplay[3]) + ") is " + orderToDisplay[6])
     previousOrder = currentOrder
 
 
