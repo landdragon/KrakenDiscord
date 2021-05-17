@@ -274,7 +274,6 @@ def GetOrderFromDataBase(id: int):
 
 @bot.command(help="add a vitual order to buy")
 async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantity: int):
-    # todo : a faire
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
@@ -295,6 +294,28 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
         await ctx.send("Error")
         print("error : " + ValueError)
 
+
+@bot.command(help="sell a vitual order to buy")
+async def sellVirtual(ctx: commands.Context, currency: str, price: float, quantity: int):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        pairs = GetPairsName()
+        result = any(pair == currency for pair in pairs)
+        if result != True:
+            await ctx.send("Error : Wrong Currency name")
+            return
+        result = GetQuantityForCurrencyFromDataBase(ctx.author.name, currency)
+        if int(result[0]) < quantity:
+            await ctx.send("Error : not enouth "+ currency)
+            return
+
+        InsertOrderToDataBase(ctx.author.name, CONST_SELL,
+                              quantity, price, currency)
+        await ctx.send("Done")
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
 
 @bot.command(help="get all virtual orders In Progress for current user")
 async def getInProgressOrdersVirtual(ctx: commands.Context):
@@ -350,7 +371,7 @@ async def batch_NotificationVirtual():
             result = any(newOrder[0] == order[0] for newOrder in currentOrder)
             if result != True:
                 if ChannelNotif != None:
-                    await ChannelNotif.send(order[1] + " your order (way : " + order[2] + ", price : " + order[4] + ", Quantity : " + order[3] + ") is " + order[6])
+                    await ChannelNotif.send(str(order[1]) + " your order (way : " + order[2] + ", price : " + str(order[4]) + ", Quantity : " + str(order[3]) + ") is " + order[6])
     previousOrder = currentOrder
 
 
