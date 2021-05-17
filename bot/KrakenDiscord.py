@@ -244,7 +244,7 @@ def GetQuantityForCurrencyFromDataBase(authorName: str, currency: str):
                 AND "Currency" = %(Currency)s;
             """
     cur = conn.cursor()
-    cur.execute(sql, {'UserName': authorName, 'UserName': currency})
+    cur.execute(sql, {'UserName': authorName, 'Currency': currency})
     records = cur.fetchone()
     cur.close()
     return records
