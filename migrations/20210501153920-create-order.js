@@ -23,6 +23,9 @@ module.exports = {
       Currency: {
         type: Sequelize.STRING
       },
+      From: {
+        type: Sequelize.STRING
+      },
       State: {
         type: Sequelize.STRING
       },

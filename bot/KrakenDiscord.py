@@ -106,8 +106,8 @@ def addCurrencyToDataBase(userName, quantity, currency):
 
 def InsertCurrencyToDataBase(authorName: str, quantity: float, currency: str):
     sql = """
-                INSERT INTO \"Wallets\"
-                (\"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\")
+                INSERT INTO "Wallets"
+                ("UserName", "Currency", "Quantity", "createdAt", "updatedAt")
                 VALUES (%(UserName)s, %(Currency)s, %(Quantity)s, %(createdAt)s, %(updatedAt)s);
         """
     cur = conn.cursor()
@@ -117,15 +117,15 @@ def InsertCurrencyToDataBase(authorName: str, quantity: float, currency: str):
     cur.close()
 
 
-def InsertOrderToDataBase(authorName: str, way: str,  quantity: float, price: float, currency: str):
+def InsertOrderToDataBase(authorName: str, way: str,  quantity: float, price: float, currency: str, From: str):
     sql = """
                 INSERT INTO "Orders"
-                (\"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\")
-	            VALUES ( %(UserName)s, %(Way)s, %(Quantity)s, %(Price)s, %(Currency)s, %(State)s, %(createdAt)s, %(updatedAt)s);
+                ("UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt")
+	            VALUES ( %(UserName)s, %(Way)s, %(Quantity)s, %(Price)s, %(Currency)s, %(From)s, %(State)s, %(createdAt)s, %(updatedAt)s);
         """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'Way': way, 'Quantity': quantity, 'Price': price,
-                      'Currency': currency, 'State': "In Progress", 'createdAt': datetime.now(), 'updatedAt': datetime.now()})
+                      'Currency': currency, 'From': From, 'State': "In Progress", 'createdAt': datetime.now(), 'updatedAt': datetime.now()})
     conn.commit()
     cur.close()
 
@@ -141,6 +141,19 @@ def InsertVirtualRuleToDataBase(authorName: str, currency: str,  allocatedBudget
     cur.execute(sql, {'UserName': authorName, 'Currency': currency, 'AllocatedBudget': allocatedBudget, 'BuyPercent': buyPercent,
                       'SellPercent': sellPercent, 'StartPrice': startPrice, 'IsActif': False,
                       'createdAt': datetime.now(), 'updatedAt': datetime.now()})
+    conn.commit()
+    cur.close()
+
+
+def ChangeIsActifVirtualRuleToDataBase(id: int, isActif: bool):
+    sql = """
+                UPDATE "VirtualRules"
+	            SET "IsActif" = %(IsActif)s, "updatedAt" = %(updatedAt)s
+	            WHERE id = %(id)s;
+        """
+    cur = conn.cursor()
+    cur.execute(sql, {'IsActif': isActif,
+                      'updatedAt': datetime.now(), 'id': id})
     conn.commit()
     cur.close()
 
@@ -161,8 +174,8 @@ def GetVirtualRuleToDataBase(authorName: str):
 def UpdateOrderToDataBase(id: str, state: str):
     sql = """
                 Update "Orders"
-                set \"State\" = %(State)s,
-                    \"updatedAt\" = %(updatedAt)s
+                set "State" = %(State)s,
+                    "updatedAt" = %(updatedAt)s
                 where id = %(id)s;
             """
     cur = conn.cursor()
@@ -173,11 +186,11 @@ def UpdateOrderToDataBase(id: str, state: str):
 
 def UpdateCurrencyToDataBase(authorName: str, quantity: float, currency: str):
     sql = """
-                Update \"Wallets\"
-                Set \"Quantity\" = %(Quantity)s,
-                    \"updatedAt\" = %(updatedAt)s
-                WHERE \"UserName\" = %(UserName)s 
-                    And \"Currency\" = %(Currency)s;
+                Update "Wallets"
+                Set "Quantity" = %(Quantity)s,
+                    "updatedAt" = %(updatedAt)s
+                WHERE "UserName" = %(UserName)s 
+                    And "Currency" = %(Currency)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'Currency': currency,
@@ -225,10 +238,10 @@ async def getWalletVirtual(ctx: commands.Context):
 
 def GetQuantityForCurrencyFromDataBase(authorName: str, currency: str):
     sql = """
-                SELECT \"Quantity\"
-                FROM \"Wallets\"
-                WHERE \"UserName\" = %(UserName)s
-                AND \"Currency\" = %(Currency)s;
+                SELECT "Quantity"
+                FROM "Wallets"
+                WHERE "UserName" = %(UserName)s
+                AND "Currency" = %(Currency)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'UserName': currency})
@@ -239,9 +252,9 @@ def GetQuantityForCurrencyFromDataBase(authorName: str, currency: str):
 
 def GetWalletFromDataBase(authorName: str):
     sql = """
-                SELECT id, \"UserName\", \"Currency\", \"Quantity\", \"createdAt\", \"updatedAt\"
-                FROM \"Wallets\"
-                WHERE \"UserName\" = %(UserName)s;
+                SELECT id, "UserName", "Currency", "Quantity", "createdAt", "updatedAt"
+                FROM "Wallets"
+                WHERE "UserName" = %(UserName)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName})
@@ -252,10 +265,10 @@ def GetWalletFromDataBase(authorName: str):
 
 def GetOrdersInProgressFromDataBase(currency: str):
     sql = """
-                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
-                From  \"Orders\"
-                WHERE \"Currency\" = %(Currency)s
-                    And \"State\" = %(State)s;
+                Select id, "UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt"
+                From  "Orders"
+                WHERE "Currency" = %(Currency)s
+                    And "State" = %(State)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'Currency': currency, 'State': "In Progress"})
@@ -266,10 +279,10 @@ def GetOrdersInProgressFromDataBase(currency: str):
 
 def GetOrdersInProgressForUserFromDataBase(userName: str):
     sql = """
-                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
-                From  \"Orders\"
-                WHERE \"UserName\" = %(UserName)s
-                    And \"State\" = %(State)s;
+                Select id, "UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt"
+                From  "Orders"
+                WHERE "UserName" = %(UserName)s
+                    And "State" = %(State)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': userName, 'State': "In Progress"})
@@ -280,9 +293,9 @@ def GetOrdersInProgressForUserFromDataBase(userName: str):
 
 def GetOrdersInProgressForUsersFromDataBase():
     sql = """
-                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
-                From  \"Orders\"
-                WHERE \"State\" = %(State)s;
+                Select id, "UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt"
+                From  "Orders"
+                WHERE "State" = %(State)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'State': "In Progress"})
@@ -293,9 +306,9 @@ def GetOrdersInProgressForUsersFromDataBase():
 
 def GetOrderFromDataBase(id: int):
     sql = """
-                Select id, \"UserName\", \"Way\", \"Quantity\", \"Price\", \"Currency\", \"State\", \"createdAt\", \"updatedAt\"
-                From  \"Orders\"
-                WHERE \"id\" = %(id)s;
+                Select id, "UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt"
+                From  "Orders"
+                WHERE "id" = %(id)s;
             """
     cur = conn.cursor()
     cur.execute(sql, {'id': id})
@@ -320,7 +333,7 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
             return
 
         InsertOrderToDataBase(ctx.author.name, CONST_BUY,
-                              quantity, price, currency)
+                              quantity, price, currency, "Manual")
         await ctx.send("Done")
     except ValueError:
         await ctx.send("Error")
@@ -334,6 +347,30 @@ async def addRuleVirtual(ctx: commands.Context, currency: str, allocatedBudget: 
             return
         InsertVirtualRuleToDataBase(ctx.author.name, currency,
                                     allocatedBudget, buyPercent, sellPercent, startPrice)
+        await ctx.send("Done")
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
+@bot.command(help="start a vitual rules for bot")
+async def startRuleVirtual(ctx: commands.Context, id: int):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        ChangeIsActifVirtualRuleToDataBase(id, True)
+        await ctx.send("Done")
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
+@bot.command(help="stop a vitual rules for bot")
+async def stopRuleVirtual(ctx: commands.Context, id: int):
+    try:
+        if ctx.channel.name != CHANNEL_WORK:
+            return
+        ChangeIsActifVirtualRuleToDataBase(id, False)
         await ctx.send("Done")
     except ValueError:
         await ctx.send("Error")
@@ -385,7 +422,7 @@ async def sellVirtual(ctx: commands.Context, currency: str, price: float, quanti
             return
 
         InsertOrderToDataBase(ctx.author.name, CONST_SELL,
-                              quantity, price, currency)
+                              quantity, price, currency, "Manual")
         await ctx.send("Done")
     except ValueError:
         await ctx.send("Error")
@@ -412,8 +449,10 @@ async def getInProgressOrdersVirtual(ctx: commands.Context):
                             value=record[4], inline=True)
             embed.add_field(name="Currency",
                             value=record[5], inline=True)
+            embed.add_field(name="From",
+                            value=record[6], inline=True)
             embed.add_field(name="createdAt",
-                            value=record[7], inline=True)
+                            value=record[8], inline=True)
             await ctx.send(embed=embed)
         await ctx.send("End")
     except ValueError:
@@ -447,7 +486,7 @@ async def batch_NotificationVirtual():
             if result != True:
                 if ChannelNotif != None:
                     orderToDisplay = GetOrderFromDataBase(order[0])
-                    await ChannelNotif.send(str(orderToDisplay[1]) + " your order (way : " + orderToDisplay[2] + ", price : " + str(orderToDisplay[4]) + ", Quantity : " + str(orderToDisplay[3]) + ") is " + orderToDisplay[6])
+                    await ChannelNotif.send(str(orderToDisplay[1]) + " your order (way : " + orderToDisplay[2] + ", price : " + str(orderToDisplay[4]) + ", Quantity : " + str(orderToDisplay[3]) + ") From " + orderToDisplay[6] + " is " + orderToDisplay[7])
     previousOrder = currentOrder
 
 
