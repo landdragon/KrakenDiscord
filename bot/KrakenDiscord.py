@@ -396,9 +396,8 @@ async def batch_VirtualExecution():
                 addCurrencyToDataBase(order[1], order[3]*order[4]*-1, "eur")
             elif order[2] == CONST_SELL and currentPrice > float(order[4]):
                 UpdateOrderToDataBase(order[0], "Executed")
-                addCurrencyToDataBase(order[1], order[3]*-1, int(order[5]))
-                addCurrencyToDataBase(
-                    order[1], order[3]*order[4], int(order[5]))
+                addCurrencyToDataBase(order[1], order[3]*-1, order[5])
+                addCurrencyToDataBase(order[1], order[3]*order[4], "eur")
 
 
 @bot.listen()
