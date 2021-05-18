@@ -589,6 +589,7 @@ async def on_ready():
     previousOrder = None
     batch_NotificationVirtual.start()
     batch_VirtualExecution.start()
+    batch_VirtualRulesExecution.start()
 
 
 def exit_gracefully(signum, frame):
@@ -598,6 +599,7 @@ def exit_gracefully(signum, frame):
 
     batch_NotificationVirtual.stop()
     batch_VirtualExecution.stop()
+    batch_VirtualRulesExecution.stop()
 
 
 bot.run(TOKEN)
