@@ -562,7 +562,7 @@ async def batch_VirtualRulesExecution():
         orders = GetOrdersInProgressForFromFromDataBase(ruleName)
         if orders != None and any(orders):
             # order is in progress so we do nothing
-            return
+            continue
         orders = GetOrdersForFromOrderedByCreationDateFromDataBase(ruleName)
         if orders == None or any(orders) != True or orders[0][2] == CONST_SELL:
             print("should create an order of buy")
