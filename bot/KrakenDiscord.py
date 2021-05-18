@@ -561,7 +561,7 @@ async def batch_VirtualRulesExecution():
         ruleName = "Rule-"+str(rule[0])
         print(ruleName)
         orders = GetOrdersInProgressForFromFromDataBase(ruleName)
-        if orders != None:
+        if orders != None and any(orders):
             print("already an order")
             print(orders)
             # order is in progress so we do nothing
