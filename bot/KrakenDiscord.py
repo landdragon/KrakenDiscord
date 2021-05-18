@@ -559,17 +559,22 @@ async def batch_VirtualRulesExecution():
     rules = GetVirtualRuleActivedToDataBase()
     for rule in rules:
         ruleName = "Rule-"+str(rule[0])
+        print(rule)
         orders = GetOrdersInProgressForFromFromDataBase(ruleName)
         if orders != None:
+            print("already an order")
             # order is in progress so we do nothing
             return
+        print("no order in progress")
         orders = GetOrdersForFromOrderedByCreationDateFromDataBase(ruleName)
         if orders != None or orders[0][2] == CONST_SELL:
+            print("should create an order of buy")
             currentPrice = GetPriceOfPair(rule[2])
             price = currentPrice-currentPrice*(rule[4]/100)
             InsertOrderToDataBase(
                 rule[1], CONST_BUY, rule[3]/price, price, rule[2], ruleName)
         elif orders[0][2] == CONST_BUY:
+            print("should create an order of sell")
             currentPrice = orders[0][4]
             price = currentPrice+currentPrice*(rule[5]/100)
             InsertOrderToDataBase(
