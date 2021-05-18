@@ -566,12 +566,14 @@ async def batch_VirtualRulesExecution():
         orders = GetOrdersForFromOrderedByCreationDateFromDataBase(ruleName)
         if orders != None or orders[0][2] == CONST_SELL:
             currentPrice = GetPriceOfPair(rule[2])
+            price = currentPrice-currentPrice*(rule[4]/100)
             InsertOrderToDataBase(
-                rule[1], CONST_BUY, rule[3]/(currentPrice*(rule[4]/100)), currentPrice*(rule[4]/100), rule[2], ruleName)
+                rule[1], CONST_BUY, rule[3]/price, price, rule[2], ruleName)
         elif orders[0][2] == CONST_BUY:
             currentPrice = orders[0][4]
+            price = currentPrice+currentPrice*(rule[5]/100)
             InsertOrderToDataBase(
-                rule[1], CONST_SELL, orders[0][3], currentPrice*(rule[5]/100), rule[2], ruleName)
+                rule[1], CONST_SELL, orders[0][3], price, rule[2], ruleName)
 
 
 @bot.listen()
