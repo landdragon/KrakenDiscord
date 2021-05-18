@@ -158,7 +158,7 @@ def ChangeIsActifVirtualRuleToDataBase(id: int, isActif: bool):
     cur.close()
 
 
-def GetVirtualRuleToDataBase(authorName: str):
+def GetVirtualRuleForUserToDataBase(authorName: str):
     sql = """
                 SELECT id, "UserName", "Currency", "AllocatedBudget", "BuyPercent", "SellPercent", "StartPrice", "IsActif", "createdAt", "updatedAt"
 	            FROM "VirtualRules"
@@ -166,6 +166,19 @@ def GetVirtualRuleToDataBase(authorName: str):
             """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName})
+    records = cur.fetchall()
+    cur.close()
+    return records
+
+
+def GetVirtualRuleActivedToDataBase():
+    sql = """
+                SELECT id, "UserName", "Currency", "AllocatedBudget", "BuyPercent", "SellPercent", "StartPrice", "IsActif", "createdAt", "updatedAt"
+	            FROM "VirtualRules"
+                WHERE "IsActif" = %(IsActif)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'IsActif': True})
     records = cur.fetchall()
     cur.close()
     return records
@@ -291,6 +304,34 @@ def GetOrdersInProgressForUserFromDataBase(userName: str):
     return records
 
 
+def GetOrdersForFromOrderedByCreationDateFromDataBase(From: str):
+    sql = """
+                Select id, "UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt"
+                From  "Orders"
+                WHERE "From" = %(From)s
+                order by "createdAt" desc;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'From': From})
+    records = cur.fetchall()
+    cur.close()
+    return records
+
+
+def GetOrdersInProgressForFromFromDataBase(From: str):
+    sql = """
+                Select id, "UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt"
+                From  "Orders"
+                WHERE "State" = %(State)s
+                and "From" = %(From)s;
+            """
+    cur = conn.cursor()
+    cur.execute(sql, {'State': "In Progress", 'From': From})
+    records = cur.fetchall()
+    cur.close()
+    return records
+
+
 def GetOrdersInProgressForUsersFromDataBase():
     sql = """
                 Select id, "UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt"
@@ -382,7 +423,7 @@ async def showRuleVirtual(ctx: commands.Context):
     try:
         if ctx.channel.name != CHANNEL_WORK:
             return
-        rules = GetVirtualRuleToDataBase(ctx.author.name)
+        rules = GetVirtualRuleForUserToDataBase(ctx.author.name)
         if rules != None:
             for rule in rules:
                 embed = discord.Embed(title=f"Rules",
@@ -511,6 +552,26 @@ async def batch_VirtualExecution():
                 addCurrencyToDataBase(order[1], order[3]*-1, order[5])
                 addCurrencyToDataBase(order[1], order[3]*order[4], "eur")
                 UpdateOrderToDataBase(order[0], "Executed")
+
+
+@tasks.loop(seconds=3.0)
+async def batch_VirtualRulesExecution():
+    rules = GetVirtualRuleActivedToDataBase()
+    for rule in rules:
+        ruleName = "Rule-"+rule[0]
+        orders = GetOrdersInProgressForFromFromDataBase(ruleName)
+        if orders != None:
+            # order is in progress so we do nothing
+            return
+        orders = GetOrdersForFromOrderedByCreationDateFromDataBase(ruleName)
+        if orders != None or orders[0][2] == CONST_SELL:
+            currentPrice = GetPriceOfPair(rule[2])
+            InsertOrderToDataBase(
+                rule[1], CONST_BUY, rule[3]/(currentPrice*(rule[4]/100)), currentPrice*(rule[4]/100), rule[2], ruleName)
+        elif orders[0][2] == CONST_BUY:
+            currentPrice = orders[0][4]
+            InsertOrderToDataBase(
+                rule[1], CONST_SELL, orders[0][3], currentPrice*(rule[5]/100), rule[2], ruleName)
 
 
 @bot.listen()
