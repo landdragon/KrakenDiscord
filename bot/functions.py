@@ -282,25 +282,24 @@ def GetWalletFromKraken() -> dict:
 
 def GetClosedOrdersFromKraken() -> list:
     kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
-    response: dict = kraken.query_private('ClosedOrders', {
+    response: dict = kraken.query_private('TradesHistory', {
         "nonce": str(int(1000 * time.time())),
     })
     kraken.close()
 
     # print(response)
     orders = []
-    for order_id, order in response['result']['closed'].items():
-        if order['status'] == "canceled":
-            continue
+    for order_id, order in response['result']['trades'].items():
         orders.append({
             "id": order_id,
-            "pair": order['descr']['pair'],
+            "ordertxid": order['ordertxid'],
+            "postxid": order['postxid'],
+            "pair": order['pair'],
             "quantity": order['vol'],
-            "type": order['descr']['type'],
+            "type": order['type'],
             "price": order['price'],
             "fee": order['fee'],
-            "status": order['status'],
-            "closeDateTime":  datetime.fromtimestamp(order['closetm'])
+            "time":  datetime.fromtimestamp(order['time'])
         });
     print(orders)
 

@@ -121,7 +121,8 @@ async def GetClosedOrders(ctx: commands.Context):
             return
         orders = GetClosedOrdersFromKraken()
         for order in orders:
-            embed = discord.Embed(title=order['id'], timestamp=order["closeDateTime"], color=discord.Color.red())
+            embed = discord.Embed(title=order['id'], timestamp=order["time"],
+                                  color=discord.Color.red())
             embed.add_field(name="pair",
                             value=order['pair'], inline=True)
             embed.add_field(name="quantity",
