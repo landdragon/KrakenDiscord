@@ -1,6 +1,7 @@
 import psycopg2
 import os
-from datetime import datetime, time
+from datetime import datetime
+import time
 import krakenex
 
 DATABASE_URL = os.getenv("DATABASE_URL")
