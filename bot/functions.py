@@ -306,13 +306,14 @@ def GetClosedOrdersFromKraken() -> list:
     return orders
 
 
-def GetCurrentGainFromKraken() -> dict:
+def GetCurrentGainFromKraken() -> list:
     orders = GetClosedOrdersFromKraken()
     orders.reverse()
     wallet_histo = {}
     for order in orders:
         if order['pair'] not in wallet_histo:
             wallet_histo[order['pair']] = {
+                "pair": order['pair'],
                 "quantity": order['quantity'],
                 "price": order['price'],
                 "gain": 0.0,
@@ -334,9 +335,13 @@ def GetCurrentGainFromKraken() -> dict:
     for wallet_id, wallet_line in wallet_histo.items():
         current_price = GetPriceOfPair(wallet_id)
         wallet_histo[wallet_id]['CurrentPrice'] = current_price
-        wallet_histo[wallet_id]['WaitGain'] = wallet_histo[wallet_id]['quantity'] * (current_price - wallet_histo[wallet_id]['price'])
-
-    return wallet_histo
+        wallet_histo[wallet_id]['WaitGain'] = wallet_histo[wallet_id]['quantity'] * (
+                    current_price - wallet_histo[wallet_id]['price'])
+    list = []
+    for value in wallet_histo.values():
+        list.append(value)
+    list.sort(key=lambda o: o['WaitGain'])
+    return list
 
 
 NameOfCurrencies = \

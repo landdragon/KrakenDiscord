@@ -147,10 +147,10 @@ async def GetCurrentGain(ctx: commands.Context):
         datetime_now = datetime.now()
         total_gain = 0.0
         total_Wait_Gain = 0.0
-        for orderId, order in orders.items():
+        for order in orders:
             total_gain += order['gain']
             total_Wait_Gain += order['WaitGain']
-            embed = discord.Embed(title=orderId, timestamp=datetime_now,
+            embed = discord.Embed(title=order['pair'], timestamp=datetime_now,
                                   color=discord.Color.red())
             embed.add_field(name="quantity",
                             value=order['quantity'], inline=True)
