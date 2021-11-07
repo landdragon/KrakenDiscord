@@ -296,7 +296,8 @@ def GetClosedOrdersFromKraken() -> dict:
             "quantity": order['vol'],
             "type": order['descr']['type'],
             "price": order['price'],
-            "fee": order['fee']
+            "fee": order['fee'],
+            "status": order['status']
         });
     print(orders)
 

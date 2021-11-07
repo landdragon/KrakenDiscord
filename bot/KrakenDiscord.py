@@ -132,6 +132,8 @@ async def GetClosedOrders(ctx: commands.Context):
                             value=order['price'], inline=True)
             embed.add_field(name="fee",
                             value=order['fee'], inline=True)
+            embed.add_field(name="status",
+                            value=order['status'], inline=True)
             await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
