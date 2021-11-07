@@ -114,6 +114,15 @@ async def getWalletVirtual(ctx: commands.Context):
         await ctx.send("Error")
         print("error : " + ValueError)
 
+@bot.command(help="get Closed Orders")
+async def GetClosedOrders(ctx: commands.Context):
+    try:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_WORK):
+            return
+        GetClosedOrdersFromKraken()
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
 @bot.command(help="get wallet")
 async def getWallet(ctx: commands.Context):
     try:
@@ -130,7 +139,7 @@ async def getWallet(ctx: commands.Context):
                 current_price = GetPriceOfCurrency(code);
                 name = GetNameOfCurrency(code)
                 if quantity > 0:
-                    embed = discord.Embed(title=name,
+                    embed = discord.Embed(title=name+'('+code+')',
                                           timestamp=datetime_now, color=discord.Color.red())
                     embed.add_field(name="Quantity",
                                     value=quantity, inline=True)

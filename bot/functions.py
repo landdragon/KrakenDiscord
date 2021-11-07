@@ -1,6 +1,6 @@
 import psycopg2
 import os
-from datetime import datetime
+from datetime import datetime, time
 import krakenex
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -14,12 +14,12 @@ conn = psycopg2.connect(DATABASE_URL)
 
 
 def addCurrencyToDataBase(userName, quantity, currency):
-    previousQuantity = GetQuantityForCurrencyFromDataBase(userName, currency)
-    if previousQuantity == None:
+    previous_quantity = GetQuantityForCurrencyFromDataBase(userName, currency)
+    if previous_quantity is None:
         InsertCurrencyToDataBase(userName, quantity, currency)
     else:
         UpdateCurrencyToDataBase(
-            userName, previousQuantity[0] + quantity, currency)
+            userName, previous_quantity[0] + quantity, currency)
 
 
 def InsertCurrencyToDataBase(authorName: str, quantity: float, currency: str):
@@ -257,7 +257,7 @@ def GetPriceOfPair(pair: str) -> float:
     kraken = krakenex.API()
     response = kraken.query_public('Ticker?pair=' + pair)
     kraken.close()
-    #print(response)
+    # print(response)
     price = float(response['result'][pair]['c'][0])
     return price
 
@@ -275,8 +275,18 @@ def GetWalletFromKraken() -> dict:
     kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
     response: dict = kraken.query_private('Balance')
     kraken.close()
-    #print(response)
+    # print(response)
     return response['result']
+
+
+def GetClosedOrdersFromKraken():
+    kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
+    response: dict = kraken.query_private('ClosedOrders', {
+        "nonce": str(int(1000 * time.time())),
+    })
+    kraken.close()
+    print(response)
+    # return response['result']
 
 
 NameOfCurrencies = \
