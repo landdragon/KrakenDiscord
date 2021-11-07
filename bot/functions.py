@@ -301,30 +301,36 @@ def GetClosedOrdersFromKraken() -> list:
             "fee": float(order['fee']),
             "time": datetime.fromtimestamp(order['time'])
         });
-    orders.reverse()
     print(orders)
-    walletHisto = {}
+
+    return orders
+
+
+def GetCurrentGainFromKraken() -> list:
+    orders = GetClosedOrdersFromKraken()
+    orders.reverse()
+    wallet_histo = {}
     for order in orders:
-        if order['pair'] not in walletHisto:
-            walletHisto[order['pair']] = {
+        if order['pair'] not in wallet_histo:
+            wallet_histo[order['pair']] = {
                 "quantity": order['quantity'],
                 "price": order['price'],
                 "gain": 0.0,
             }
         else:
             if order['type'] == 'buy':
-                walletHisto[order['pair']]['price'] = (order['quantity'] * order['price'] + walletHisto[order['pair']][
-                    'quantity'] * walletHisto[order['pair']]['price']) / (
-                                                                  order['quantity'] + walletHisto[order['pair']][
-                                                              'quantity'])
-                walletHisto[order['pair']]['quantity'] += order['quantity']
+                wallet_histo[order['pair']]['price'] = (order['quantity'] * order['price'] + wallet_histo[order['pair']][
+                    'quantity'] * wallet_histo[order['pair']]['price']) / (
+                                                              order['quantity'] + wallet_histo[order['pair']][
+                                                          'quantity'])
+                wallet_histo[order['pair']]['quantity'] += order['quantity']
             else:
-                walletHisto[order['pair']]['quantity'] -= order['quantity']
-                walletHisto[order['pair']]['gain'] += order['quantity'] * (order['price'] - walletHisto[order['pair']]['price'])
+                wallet_histo[order['pair']]['quantity'] -= order['quantity']
+                wallet_histo[order['pair']]['gain'] += order['quantity'] * (
+                            order['price'] - wallet_histo[order['pair']]['price'])
 
-    print(walletHisto)
-    return orders
-
+    print(wallet_histo)
+    return wallet_histo
 
 NameOfCurrencies = \
     {

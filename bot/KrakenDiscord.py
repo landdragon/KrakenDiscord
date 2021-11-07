@@ -14,7 +14,6 @@ NOTIFICATION_VIRTUAL = "notification-virtual"
 
 locale.setlocale(locale.LC_ALL, 'fr_FR')
 
-
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 
 
@@ -29,8 +28,9 @@ async def ping(ctx: commands.Context):
 @bot.command(help="where I should request this bot")
 async def where(ctx: commands.Context):
     print("where")
-    await ctx.send("The command will work at " + CHANNEL_WORK + " or at " + CHANNEL_SIMULATION + " and you are at " + ctx.channel.name + ". you are not at the good place ? " +
-                   isChannelIsAuthorised(ctx.channel.name, ALL))
+    await ctx.send(
+        "The command will work at " + CHANNEL_WORK + " or at " + CHANNEL_SIMULATION + " and you are at " + ctx.channel.name + ". you are not at the good place ? " +
+        isChannelIsAuthorised(ctx.channel.name, ALL))
 
 
 @bot.command(help="get info")
@@ -60,14 +60,12 @@ async def pairs(ctx: commands.Context):
     await ctx.send(eurAssetPairs)
 
 
-
 @bot.command(help="get last transaction Price of pair")
 async def price(ctx: commands.Context, pair: str):
     if not isChannelIsAuthorised(ctx.channel.name, ALL):
         return
     price = GetPriceOfPair(pair)
     await ctx.send(price)
-
 
 
 @bot.command(help="add cash to virtual wallet")
@@ -114,6 +112,7 @@ async def getWalletVirtual(ctx: commands.Context):
         await ctx.send("Error")
         print("error : " + ValueError)
 
+
 @bot.command(help="get Closed Orders")
 async def GetClosedOrders(ctx: commands.Context):
     try:
@@ -138,6 +137,28 @@ async def GetClosedOrders(ctx: commands.Context):
         await ctx.send("Error")
         print("error : " + ValueError)
 
+@bot.command(help="get Current Gain")
+async def GetCurrentGain(ctx: commands.Context):
+    try:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_WORK):
+            return
+        orders = GetCurrentGainFromKraken()
+        datetime_now = datetime.now()
+        for order in orders:
+            embed = discord.Embed(title=order['pair'], timestamp=datetime_now,
+                                  color=discord.Color.red())
+            embed.add_field(name="quantity",
+                            value=order['quantity'], inline=True)
+            embed.add_field(name="price",
+                            value=order['price'], inline=True)
+            embed.add_field(name="gain",
+                            value=order['gain'], inline=True)
+            await ctx.send(embed=embed)
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
+
 @bot.command(help="get wallet")
 async def getWallet(ctx: commands.Context):
     try:
@@ -154,7 +175,7 @@ async def getWallet(ctx: commands.Context):
                 current_price = GetPriceOfCurrency(code);
                 name = GetNameOfCurrency(code)
                 if quantity > 0:
-                    embed = discord.Embed(title=name+'('+code+')',
+                    embed = discord.Embed(title=name + '(' + code + ')',
                                           timestamp=datetime_now, color=discord.Color.red())
                     embed.add_field(name="Quantity",
                                     value=quantity, inline=True)
@@ -186,7 +207,7 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
             await ctx.send("Error : Wrong Currency name")
             return
         result = GetQuantityForCurrencyFromDataBase(ctx.author.name, "eur")
-        if result == None or result[0] < price*quantity:
+        if result == None or result[0] < price * quantity:
             await ctx.send("Error : not enouth Eur")
             return
 
@@ -199,7 +220,8 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
 
 
 @bot.command(help="add a vitual rules for bot")
-async def addRuleVirtual(ctx: commands.Context, currency: str, allocatedBudget: float, buyPercent: float, sellPercent: float, startPrice: float):
+async def addRuleVirtual(ctx: commands.Context, currency: str, allocatedBudget: float, buyPercent: float,
+                         sellPercent: float, startPrice: float):
     try:
         if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
@@ -344,7 +366,10 @@ async def batch_NotificationVirtual():
             if result != True:
                 if ChannelNotif != None:
                     orderToDisplay = GetOrderFromDataBase(order[0])
-                    await ChannelNotif.send(str(orderToDisplay[1]) + " your order (way : " + orderToDisplay[2] + ", price : " + str(orderToDisplay[4]) + ", Quantity : " + str(orderToDisplay[3]) + ") From " + orderToDisplay[6] + " is " + orderToDisplay[7])
+                    await ChannelNotif.send(
+                        str(orderToDisplay[1]) + " your order (way : " + orderToDisplay[2] + ", price : " + str(
+                            orderToDisplay[4]) + ", Quantity : " + str(orderToDisplay[3]) + ") From " + orderToDisplay[
+                            6] + " is " + orderToDisplay[7])
     previousOrder = currentOrder
 
 
@@ -363,11 +388,11 @@ async def batch_VirtualExecution():
         for order in dic[pairName]:
             if order[2] == CONST_BUY and currentPrice < float(order[4]):
                 addCurrencyToDataBase(order[1], order[3], order[5])
-                addCurrencyToDataBase(order[1], order[3]*order[4]*-1, "eur")
+                addCurrencyToDataBase(order[1], order[3] * order[4] * -1, "eur")
                 UpdateOrderToDataBase(order[0], "Executed")
             elif order[2] == CONST_SELL and currentPrice > float(order[4]):
-                addCurrencyToDataBase(order[1], order[3]*-1, order[5])
-                addCurrencyToDataBase(order[1], order[3]*order[4], "eur")
+                addCurrencyToDataBase(order[1], order[3] * -1, order[5])
+                addCurrencyToDataBase(order[1], order[3] * order[4], "eur")
                 UpdateOrderToDataBase(order[0], "Executed")
 
 
@@ -375,7 +400,7 @@ async def batch_VirtualExecution():
 async def batch_VirtualRulesExecution():
     rules = GetVirtualRuleActivedToDataBase()
     for rule in rules:
-        ruleName = "Rule-"+str(rule[0])
+        ruleName = "Rule-" + str(rule[0])
         orders = GetOrdersInProgressForFromFromDataBase(ruleName)
         if orders != None and any(orders):
             # order is in progress so we do nothing
@@ -384,13 +409,13 @@ async def batch_VirtualRulesExecution():
         if orders == None or any(orders) != True or orders[0][2] == CONST_SELL:
             print("should create an order of buy")
             currentPrice = GetPriceOfPair(rule[2])
-            price = currentPrice-currentPrice*(rule[4]/100)
+            price = currentPrice - currentPrice * (rule[4] / 100)
             InsertOrderToDataBase(
-                rule[1], CONST_BUY, rule[3]/price, price, rule[2], ruleName)
+                rule[1], CONST_BUY, rule[3] / price, price, rule[2], ruleName)
         elif orders[0][2] == CONST_BUY:
             print("should create an order of sell")
             currentPrice = orders[0][4]
-            price = currentPrice+currentPrice*(rule[5]/100)
+            price = currentPrice + currentPrice * (rule[5] / 100)
             InsertOrderToDataBase(
                 rule[1], CONST_SELL, orders[0][3], price, rule[2], ruleName)
 
