@@ -280,7 +280,7 @@ def GetWalletFromKraken() -> dict:
     return response['result']
 
 
-def GetClosedOrdersFromKraken():
+def GetClosedOrdersFromKraken() -> dict:
     kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
     response: dict = kraken.query_private('ClosedOrders', {
         "nonce": str(int(1000 * time.time())),
@@ -300,7 +300,7 @@ def GetClosedOrdersFromKraken():
         });
     print(orders)
 
-    # return response['result']
+    return orders
 
 
 NameOfCurrencies = \

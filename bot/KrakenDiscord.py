@@ -119,7 +119,20 @@ async def GetClosedOrders(ctx: commands.Context):
     try:
         if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_WORK):
             return
-        GetClosedOrdersFromKraken()
+        orders = GetClosedOrdersFromKraken()
+        for order_id, order in orders.items():
+            embed = discord.Embed(title=order_id, color=discord.Color.red())
+            embed.add_field(name="pair",
+                            value=order['pair'], inline=True)
+            embed.add_field(name="quantity",
+                            value=order['quantity'], inline=True)
+            embed.add_field(name="type",
+                            value=order['type'], inline=True)
+            embed.add_field(name="price",
+                            value=order['price'], inline=True)
+            embed.add_field(name="fee",
+                            value=order['fee'], inline=True)
+            await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
