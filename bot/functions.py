@@ -295,7 +295,7 @@ def GetClosedOrdersFromKraken() -> list:
             "ordertxid": order['ordertxid'],
             "postxid": order['postxid'],
             "pair": order['pair'],
-            "quantity": int(order['vol']),
+            "quantity": float(order['vol']),
             "type": order['type'],
             "price": float(order['price']),
             "fee": float(order['fee']),
