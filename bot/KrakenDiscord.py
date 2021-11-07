@@ -134,16 +134,16 @@ async def getWallet(ctx: commands.Context):
                     embed.add_field(name="Quantity",
                                     value=quantity, inline=True)
                     embed.add_field(name="CurrentPriceUnitary",
-                                    value=current_price, inline=True)
+                                    value="{: .2f}".format(current_price), inline=True)
                     embed.add_field(name="CurrentPrice",
-                                    value=current_price * quantity, inline=True)
+                                    value="{: .2f}".format(current_price * quantity), inline=True)
                     await ctx.send(embed=embed)
                     total_Price += current_price * quantity
 
         embed = discord.Embed(title="Total",
                               timestamp=datetime_now, color=discord.Color.red())
         embed.add_field(name="WalletPrice",
-                        value=total_Price, inline=True)
+                        value="{: .2f}".format(total_Price), inline=True)
         await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
