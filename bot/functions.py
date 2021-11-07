@@ -305,7 +305,7 @@ def GetClosedOrdersFromKraken() -> list:
     print(orders)
     walletHisto = {}
     for order in orders:
-        if order['pair'] in walletHisto:
+        if order['pair'] not in walletHisto:
             walletHisto[order['pair']] = {
                 "quantity": order['quantity'],
                 "price": order['price'],
