@@ -295,10 +295,10 @@ def GetClosedOrdersFromKraken() -> list:
             "ordertxid": order['ordertxid'],
             "postxid": order['postxid'],
             "pair": order['pair'],
-            "quantity": order['vol'],
+            "quantity": int(order['vol']),
             "type": order['type'],
-            "price": order['price'],
-            "fee": order['fee'],
+            "price": float(order['price']),
+            "fee": float(order['fee']),
             "time": datetime.fromtimestamp(order['time'])
         });
     orders.reverse()
