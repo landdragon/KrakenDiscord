@@ -286,7 +286,20 @@ def GetClosedOrdersFromKraken():
         "nonce": str(int(1000 * time.time())),
     })
     kraken.close()
-    print(response)
+
+    # print(response)
+    orders = []
+    for order_id, order in response['result']['closed'].items():
+        orders.append({
+            "id": order_id,
+            "pair": order['descr']['pair'],
+            "quantity": order['vol'],
+            "type": order['descr']['type'],
+            "price": order['price'],
+            "fee": order['fee']
+        });
+    print(orders)
+
     # return response['result']
 
 

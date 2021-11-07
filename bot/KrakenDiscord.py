@@ -123,6 +123,7 @@ async def GetClosedOrders(ctx: commands.Context):
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
+
 @bot.command(help="get wallet")
 async def getWallet(ctx: commands.Context):
     try:
