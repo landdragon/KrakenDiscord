@@ -137,6 +137,7 @@ async def GetClosedOrders(ctx: commands.Context):
         await ctx.send("Error")
         print("error : " + ValueError)
 
+
 @bot.command(help="get Current Gain")
 async def GetCurrentGain(ctx: commands.Context):
     try:

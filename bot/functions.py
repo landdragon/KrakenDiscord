@@ -301,7 +301,7 @@ def GetClosedOrdersFromKraken() -> list:
             "fee": float(order['fee']),
             "time": datetime.fromtimestamp(order['time'])
         });
-    print(orders)
+    # print(orders)
 
     return orders
 
@@ -329,7 +329,7 @@ def GetCurrentGainFromKraken() -> list:
                 wallet_histo[order['pair']]['gain'] += order['quantity'] * (
                             order['price'] - wallet_histo[order['pair']]['price'])
 
-    print(wallet_histo)
+    # print(wallet_histo)
     return wallet_histo
 
 NameOfCurrencies = \
