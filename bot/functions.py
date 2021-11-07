@@ -308,7 +308,7 @@ NameOfPairs = \
         "SOL": "SOLEUR",
         "XETH": "XETHZEUR",
         "TRX": "TRXEUR",
-        "XXLM": "XMLNZEUR",
+        "XXLM": "XXLMZEUR",
         "SOL.S": "SOLEUR",
         "EWT": "EWTEUR",
         "ZEUR": "NotApplicable",
