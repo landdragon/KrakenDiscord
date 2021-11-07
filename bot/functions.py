@@ -290,6 +290,8 @@ def GetClosedOrdersFromKraken() -> dict:
     # print(response)
     orders = []
     for order_id, order in response['result']['closed'].items():
+        if order['status'] == "canceled":
+            continue
         orders.append({
             "id": order_id,
             "pair": order['descr']['pair'],
