@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands, tasks
-import krakenex
 import signal
 from functions import *
 
@@ -8,9 +7,10 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 HEROKU_RELEASE_VERSION = os.getenv("HEROKU_RELEASE_VERSION")
 HEROKU_RELEASE_CREATED_AT = os.getenv("HEROKU_RELEASE_CREATED_AT")
 HEROKU_SLUG_DESCRIPTION = os.getenv("HEROKU_SLUG_DESCRIPTION")
-CHANNEL_WORK = os.getenv("CHANNEL_WORK")
 CONST_BUY = "Buy"
 CONST_SELL = "Sell"
+NOTIFICATION_VIRTUAL = "notification-virtual"
+
 
 
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
@@ -19,7 +19,7 @@ bot = commands.Bot(command_prefix='#', description="This is a test Bot")
 @bot.command(help="ping pong")
 async def ping(ctx: commands.Context):
     print("ping")
-    if ctx.channel.name != CHANNEL_WORK:
+    if not isChannelIsAuthorised(ctx.channel.name, ALL):
         return
     await ctx.send('pong')
 
@@ -27,16 +27,16 @@ async def ping(ctx: commands.Context):
 @bot.command(help="where I should request this bot")
 async def where(ctx: commands.Context):
     print("where")
-    await ctx.send("The commande will work at " + CHANNEL_WORK + "and you are at " + ctx.channel.name + ". you are not at the good place ? " +
-                   ctx.channel.name != CHANNEL_WORK)
+    await ctx.send("The command will work at " + CHANNEL_WORK + " or at " + CHANNEL_SIMULATION + " and you are at " + ctx.channel.name + ". you are not at the good place ? " +
+                   isChannelIsAuthorised(ctx.channel.name, ALL))
 
 
 @bot.command(help="get info")
 async def info(ctx: commands.Context):
     print("info")
-    if ctx.channel.name != CHANNEL_WORK:
+    if not isChannelIsAuthorised(ctx.channel.name, ALL):
         return
-    embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commande sur Kraken",
+    embed = discord.Embed(title=f"KrakenDiscord", description="Bot pour faire des commandes sur Kraken",
                           timestamp=datetime.utcnow(), color=discord.Color.blue())
     embed.add_field(name="Version",
                     value=HEROKU_RELEASE_VERSION)
@@ -52,40 +52,25 @@ async def info(ctx: commands.Context):
 
 @bot.command(help="get list of pairs")
 async def pairs(ctx: commands.Context):
-    if ctx.channel.name != CHANNEL_WORK:
+    if not isChannelIsAuthorised(ctx.channel.name, ALL):
         return
     eurAssetPairs = GetPairsName()
     await ctx.send(eurAssetPairs)
 
 
-def GetPairsName():
-    kraken = krakenex.API()
-    response = kraken.query_public('AssetPairs')
-    assetPairs = list(response['result'])
-    shouldContain = 'eur'
-    eurAssetPairs = [
-        s for s in assetPairs if shouldContain.lower() in s.lower()]
-    return eurAssetPairs
-
 
 @bot.command(help="get last transaction Price of pair")
 async def price(ctx: commands.Context, pair: str):
-    if ctx.channel.name != CHANNEL_WORK:
+    if not isChannelIsAuthorised(ctx.channel.name, ALL):
         return
     price = GetPriceOfPair(pair)
     await ctx.send(price)
 
 
-def GetPriceOfPair(pair: str) -> float:
-    kraken = krakenex.API()
-    response = kraken.query_public('Ticker?pair=' + pair)
-    price = float(response['result'][pair]['c'][0])
-    return price
-
 
 @bot.command(help="add cash to virtual wallet")
 async def addCash(ctx: commands.Context, quantity: float):
-    if ctx.channel.name != CHANNEL_WORK:
+    if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
         return
     addCurrencyToDataBase(ctx.author.name, quantity, "eur")
     await ctx.send("Done")
@@ -94,7 +79,7 @@ async def addCash(ctx: commands.Context, quantity: float):
 @bot.command(help="get cash to virtual wallet")
 async def getCash(ctx: commands.Context):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         walletLine = GetQuantityForCurrencyFromDataBase(ctx.author.name, "eur")
 
@@ -110,7 +95,7 @@ async def getCash(ctx: commands.Context):
 @bot.command(help="get wallet to virtual wallet")
 async def getWalletVirtual(ctx: commands.Context):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         walletLines = GetWalletFromDataBase(ctx.author.name)
         if any(walletLine[3] > 0 for walletLine in walletLines) == False:
@@ -127,11 +112,37 @@ async def getWalletVirtual(ctx: commands.Context):
         await ctx.send("Error")
         print("error : " + ValueError)
 
+@bot.command(help="get wallet")
+async def getWallet(ctx: commands.Context):
+    try:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_WORK):
+            return
+        GetWalletFromKraken()
+        '''
+        #manage empty wallet
+        walletLines = GetWalletFromDataBase(ctx.author.name)
+        if any(walletLine[3] > 0 for walletLine in walletLines) == False:
+            await ctx.send("Empty")
+        else:
+
+            # manage not empty wallet
+            for walletLine in walletLines:
+                if walletLine[3] > 0:
+                    embed = discord.Embed(title=walletLine[2],
+                                          timestamp=walletLine[5], color=discord.Color.red())
+                    embed.add_field(name="Quantity",
+                                    value=walletLine[3], inline=True)
+                    await ctx.send(embed=embed)
+        '''
+    except ValueError:
+        await ctx.send("Error")
+        print("error : " + ValueError)
+
 
 @bot.command(help="add a vitual order to buy")
 async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantity: float):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         pairs = GetPairsName()
         result = any(pair == currency for pair in pairs)
@@ -154,7 +165,7 @@ async def buyVirtual(ctx: commands.Context, currency: str, price: float, quantit
 @bot.command(help="add a vitual rules for bot")
 async def addRuleVirtual(ctx: commands.Context, currency: str, allocatedBudget: float, buyPercent: float, sellPercent: float, startPrice: float):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         InsertVirtualRuleToDataBase(ctx.author.name, currency,
                                     allocatedBudget, buyPercent, sellPercent, startPrice)
@@ -167,7 +178,7 @@ async def addRuleVirtual(ctx: commands.Context, currency: str, allocatedBudget: 
 @bot.command(help="start a vitual rules for bot")
 async def startRuleVirtual(ctx: commands.Context, id: int):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         ChangeIsActifVirtualRuleToDataBase(id, True)
         await ctx.send("Done")
@@ -179,7 +190,7 @@ async def startRuleVirtual(ctx: commands.Context, id: int):
 @bot.command(help="stop a vitual rules for bot")
 async def stopRuleVirtual(ctx: commands.Context, id: int):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         ChangeIsActifVirtualRuleToDataBase(id, False)
         await ctx.send("Done")
@@ -191,7 +202,7 @@ async def stopRuleVirtual(ctx: commands.Context, id: int):
 @bot.command(help="show a vitual rules for bot")
 async def showRuleVirtual(ctx: commands.Context):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         rules = GetVirtualRuleForUserToDataBase(ctx.author.name)
         if rules != None:
@@ -220,7 +231,7 @@ async def showRuleVirtual(ctx: commands.Context):
 @bot.command(help="sell a vitual order to buy")
 async def sellVirtual(ctx: commands.Context, currency: str, price: float, quantity: float):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         pairs = GetPairsName()
         result = any(pair == currency for pair in pairs)
@@ -243,7 +254,7 @@ async def sellVirtual(ctx: commands.Context, currency: str, price: float, quanti
 @bot.command(help="get all virtual orders In Progress for current user")
 async def getInProgressOrdersVirtual(ctx: commands.Context):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         records = GetOrdersInProgressForUserFromDataBase(ctx.author.name)
         for record in records:
@@ -274,7 +285,7 @@ async def getInProgressOrdersVirtual(ctx: commands.Context):
 @bot.command(help="cancel a virtual orders")
 async def cancelVirtualOrder(ctx: commands.Context, orderId: int):
     try:
-        if ctx.channel.name != CHANNEL_WORK:
+        if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_SIMULATION):
             return
         UpdateOrderToDataBase(orderId, "Cancel")
         await ctx.send("Done")
@@ -288,7 +299,7 @@ async def batch_NotificationVirtual():
     global previousOrder
     ChannelNotif = None
     for Channel in bot.get_all_channels():
-        if Channel.name == "notification-virtual":
+        if Channel.name == NOTIFICATION_VIRTUAL:
             ChannelNotif = Channel
     currentOrder = GetOrdersInProgressForUsersFromDataBase()
     if previousOrder != None:
