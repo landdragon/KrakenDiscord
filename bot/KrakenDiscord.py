@@ -155,21 +155,21 @@ async def GetCurrentGain(ctx: commands.Context):
             embed.add_field(name="quantity",
                             value=order['quantity'], inline=True)
             embed.add_field(name="price",
-                            value=order['price'], inline=True)
+                            value=locale.currency(order['price'], grouping=True), inline=True)
             embed.add_field(name="CurrentGain",
-                            value=order['gain'], inline=True)
+                            value=locale.currency(order['gain'], grouping=True), inline=True)
             embed.add_field(name="CurrentPrice",
-                            value=order['CurrentPrice'], inline=True)
+                            value=locale.currency(order['CurrentPrice'], grouping=True), inline=True)
             embed.add_field(name="WaitGain",
-                            value=order['WaitGain'], inline=True)
+                            value=locale.currency(order['WaitGain'], grouping=True), inline=True)
             await ctx.send(embed=embed)
 
         embed = discord.Embed(title="Total", timestamp=datetime_now,
                               color=discord.Color.red())
         embed.add_field(name="CurrentGain",
-                        value=total_gain, inline=True)
+                        value=locale.currency(total_gain, grouping=True), inline=True)
         embed.add_field(name="WaitGain",
-                        value=total_Wait_Gain, inline=True)
+                        value=locale.currency(total_Wait_Gain, grouping=True), inline=True)
         await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
