@@ -12,6 +12,7 @@ KRAKEN_SECRET = os.getenv("KRAKEN_SECRET")
 
 conn = psycopg2.connect(DATABASE_URL)
 
+
 def addCurrencyToDataBase(userName, quantity, currency):
     previousQuantity = GetQuantityForCurrencyFromDataBase(userName, currency)
     if previousQuantity == None:
@@ -34,7 +35,7 @@ def InsertCurrencyToDataBase(authorName: str, quantity: float, currency: str):
     cur.close()
 
 
-def InsertOrderToDataBase(authorName: str, way: str,  quantity: float, price: float, currency: str, From: str):
+def InsertOrderToDataBase(authorName: str, way: str, quantity: float, price: float, currency: str, From: str):
     sql = """
                 INSERT INTO "Orders"
                 ("UserName", "Way", "Quantity", "Price", "Currency", "From", "State", "createdAt", "updatedAt")
@@ -42,12 +43,14 @@ def InsertOrderToDataBase(authorName: str, way: str,  quantity: float, price: fl
         """
     cur = conn.cursor()
     cur.execute(sql, {'UserName': authorName, 'Way': way, 'Quantity': quantity, 'Price': price,
-                      'Currency': currency, 'From': From, 'State': "In Progress", 'createdAt': datetime.now(), 'updatedAt': datetime.now()})
+                      'Currency': currency, 'From': From, 'State': "In Progress", 'createdAt': datetime.now(),
+                      'updatedAt': datetime.now()})
     conn.commit()
     cur.close()
 
 
-def InsertVirtualRuleToDataBase(authorName: str, currency: str,  allocatedBudget: float, buyPercent: float, sellPercent: float, startPrice: float):
+def InsertVirtualRuleToDataBase(authorName: str, currency: str, allocatedBudget: float, buyPercent: float,
+                                sellPercent: float, startPrice: float):
     sql = """
                 INSERT INTO "VirtualRules"
                 ("UserName", "Currency", "AllocatedBudget", "BuyPercent", "SellPercent", "StartPrice", "IsActif", "createdAt", "updatedAt")
@@ -55,7 +58,8 @@ def InsertVirtualRuleToDataBase(authorName: str, currency: str,  allocatedBudget
                             %(IsActif)s, %(createdAt)s, %(updatedAt)s);
         """
     cur = conn.cursor()
-    cur.execute(sql, {'UserName': authorName, 'Currency': currency, 'AllocatedBudget': allocatedBudget, 'BuyPercent': buyPercent,
+    cur.execute(sql, {'UserName': authorName, 'Currency': currency, 'AllocatedBudget': allocatedBudget,
+                      'BuyPercent': buyPercent,
                       'SellPercent': sellPercent, 'StartPrice': startPrice, 'IsActif': False,
                       'createdAt': datetime.now(), 'updatedAt': datetime.now()})
     conn.commit()
@@ -237,6 +241,7 @@ def GetOrderFromDataBase(id: int):
     cur.close()
     return record
 
+
 def GetPairsName():
     kraken = krakenex.API()
     response = kraken.query_public('AssetPairs')
@@ -254,7 +259,7 @@ def GetPriceOfPair(pair: str) -> float:
     return price
 
 
-def isChannelIsAuthorised(currentChannel : str, accessChannel : str):
+def isChannelIsAuthorised(currentChannel: str, accessChannel: str):
     if accessChannel == CHANNEL_WORK:
         return currentChannel == CHANNEL_WORK
     if accessChannel == CHANNEL_SIMULATION:
@@ -262,12 +267,10 @@ def isChannelIsAuthorised(currentChannel : str, accessChannel : str):
     if accessChannel == ALL:
         return currentChannel == CHANNEL_WORK or currentChannel == CHANNEL_SIMULATION
 
-def GetWalletFromKraken():
+
+def GetWalletFromKraken() -> dict:
     kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
-    response = kraken.query_private('Balance')
+    response: dict = kraken.query_private('Balance')
     print(response)
-    print(response.result)
-    return response.result
-
-
-
+    print(response['result'])
+    return response['result']

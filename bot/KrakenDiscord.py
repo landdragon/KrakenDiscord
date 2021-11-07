@@ -123,9 +123,8 @@ async def getWallet(ctx: commands.Context):
         if len(wallet) == 0:
             await ctx.send("Empty")
         else:
-            for walletLine in wallet:
-                quantity = float(walletLine[1])
-                name = walletLine[0]
+            for name, quantity_string in wallet.items():
+                quantity = float(quantity_string)
                 if quantity > 0:
                     embed = discord.Embed(title=name,
                                           timestamp=datetime_now, color=discord.Color.red())
