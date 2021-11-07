@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 import signal
+import locale
 from functions import *
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
@@ -11,6 +12,7 @@ CONST_BUY = "Buy"
 CONST_SELL = "Sell"
 NOTIFICATION_VIRTUAL = "notification-virtual"
 
+locale.setlocale(locale.LC_ALL, 'french')
 
 
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
@@ -127,23 +129,22 @@ async def getWallet(ctx: commands.Context):
                 quantity = float(quantity_string)
                 current_price = GetPriceOfCurrency(code);
                 name = GetNameOfCurrency(code)
-
                 if quantity > 0:
                     embed = discord.Embed(title=name,
                                           timestamp=datetime_now, color=discord.Color.red())
                     embed.add_field(name="Quantity",
                                     value=quantity, inline=True)
                     embed.add_field(name="CurrentPriceUnitary",
-                                    value="{:,.2f}".format(current_price), inline=True)
+                                    value=locale.format_string(current_price, monetary=True), inline=True)
                     embed.add_field(name="CurrentPrice",
-                                    value="{:,.2f}".format(current_price * quantity), inline=True)
+                                    value=locale.format_string(current_price * quantity, monetary=True), inline=True)
                     await ctx.send(embed=embed)
                     total_Price += current_price * quantity
 
         embed = discord.Embed(title="Total",
                               timestamp=datetime_now, color=discord.Color.red())
         embed.add_field(name="WalletPrice",
-                        value="{:,.2f}".format(total_Price), inline=True)
+                        value=locale.format_string(total_Price, monetary=True), inline=True)
         await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
