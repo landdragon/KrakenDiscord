@@ -145,8 +145,8 @@ async def GetCurrentGain(ctx: commands.Context):
             return
         orders = GetCurrentGainFromKraken()
         datetime_now = datetime.now()
-        for order in orders:
-            embed = discord.Embed(title=order['pair'], timestamp=datetime_now,
+        for orderId, order in orders.items():
+            embed = discord.Embed(title=orderId, timestamp=datetime_now,
                                   color=discord.Color.red())
             embed.add_field(name="quantity",
                             value=order['quantity'], inline=True)

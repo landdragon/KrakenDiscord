@@ -306,7 +306,7 @@ def GetClosedOrdersFromKraken() -> list:
     return orders
 
 
-def GetCurrentGainFromKraken() -> list:
+def GetCurrentGainFromKraken() -> dict:
     orders = GetClosedOrdersFromKraken()
     orders.reverse()
     wallet_histo = {}
