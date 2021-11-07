@@ -117,23 +117,21 @@ async def getWallet(ctx: commands.Context):
     try:
         if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_WORK):
             return
-        GetWalletFromKraken()
-        '''
-        #manage empty wallet
-        walletLines = GetWalletFromDataBase(ctx.author.name)
-        if any(walletLine[3] > 0 for walletLine in walletLines) == False:
+        wallet = GetWalletFromKraken()
+        datetime_now = datetime.now()
+
+        if len(wallet) == 0:
             await ctx.send("Empty")
         else:
-
-            # manage not empty wallet
-            for walletLine in walletLines:
-                if walletLine[3] > 0:
-                    embed = discord.Embed(title=walletLine[2],
-                                          timestamp=walletLine[5], color=discord.Color.red())
+            for walletLine in wallet:
+                quantity = float(walletLine[1])
+                name = walletLine[0]
+                if quantity > 0:
+                    embed = discord.Embed(title=name,
+                                          timestamp=datetime_now, color=discord.Color.red())
                     embed.add_field(name="Quantity",
-                                    value=walletLine[3], inline=True)
+                                    value=quantity, inline=True)
                     await ctx.send(embed=embed)
-        '''
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)

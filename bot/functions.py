@@ -266,6 +266,8 @@ def GetWalletFromKraken():
     kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
     response = kraken.query_private('Balance')
     print(response)
+    print(response.result)
+    return response.result
 
 
 
