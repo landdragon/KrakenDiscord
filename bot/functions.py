@@ -257,7 +257,7 @@ def GetPriceOfPair(pair: str) -> float:
     kraken = krakenex.API()
     response = kraken.query_public('Ticker?pair=' + pair)
     kraken.close()
-    print(response)
+    #print(response)
     price = float(response['result'][pair]['c'][0])
     return price
 
@@ -275,7 +275,7 @@ def GetWalletFromKraken() -> dict:
     kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
     response: dict = kraken.query_private('Balance')
     kraken.close()
-    print(response)
+    #print(response)
     return response['result']
 
 
