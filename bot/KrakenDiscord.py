@@ -120,8 +120,8 @@ async def GetClosedOrders(ctx: commands.Context):
         if not isChannelIsAuthorised(ctx.channel.name, CHANNEL_WORK):
             return
         orders = GetClosedOrdersFromKraken()
-        for order_id, order in orders.items():
-            embed = discord.Embed(title=order_id, color=discord.Color.red())
+        for order in orders:
+            embed = discord.Embed(title=order['id'], color=discord.Color.red())
             embed.add_field(name="pair",
                             value=order['pair'], inline=True)
             embed.add_field(name="quantity",
