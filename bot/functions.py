@@ -299,11 +299,30 @@ def GetClosedOrdersFromKraken() -> list:
             "type": order['type'],
             "price": order['price'],
             "fee": order['fee'],
-            "time":  datetime.fromtimestamp(order['time'])
+            "time": datetime.fromtimestamp(order['time'])
         });
-    orders.sort(key=lambda o: o['time'], reverse=True)
+    orders.reverse()
     print(orders)
+    walletHisto = {}
+    for order in orders:
+        if order['pair'] in walletHisto:
+            walletHisto[order['pair']] = {
+                "quantity": order['quantity'],
+                "price": order['price'],
+                "gain": 0.0,
+            }
+        else:
+            if order['type'] == 'buy':
+                walletHisto[order['pair']]['price'] = (order['quantity'] * order['price'] + walletHisto[order['pair']][
+                    'quantity'] * walletHisto[order['pair']]['price']) / (
+                                                                  order['quantity'] + walletHisto[order['pair']][
+                                                              'quantity'])
+                walletHisto[order['pair']]['quantity'] += order['quantity']
+            else:
+                walletHisto[order['pair']]['quantity'] -= order['quantity']
+                walletHisto[order['pair']]['gain'] += order['quantity'] * (order['price'] - walletHisto[order['pair']]['price'])
 
+    print(walletHisto)
     return orders
 
 
