@@ -12,7 +12,7 @@ CONST_BUY = "Buy"
 CONST_SELL = "Sell"
 NOTIFICATION_VIRTUAL = "notification-virtual"
 
-locale.setlocale(locale.LC_ALL, 'french')
+locale.setlocale(locale.LC_ALL, 'fr_FR')
 
 
 bot = commands.Bot(command_prefix='#', description="This is a test Bot")
