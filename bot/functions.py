@@ -335,6 +335,7 @@ def GetCurrentGainFromKraken() -> dict:
         current_price = GetPriceOfPair(wallet_id)
         wallet_histo[wallet_id]['CurrentPrice'] = current_price
         wallet_histo[wallet_id]['WaitGain'] = wallet_histo[wallet_id]['quantity'] * (current_price - wallet_histo[wallet_id]['price'])
+
     return wallet_histo
 
 

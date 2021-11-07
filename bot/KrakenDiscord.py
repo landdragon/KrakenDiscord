@@ -145,7 +145,11 @@ async def GetCurrentGain(ctx: commands.Context):
             return
         orders = GetCurrentGainFromKraken()
         datetime_now = datetime.now()
+        total_gain = 0.0
+        total_Wait_Gain = 0.0
         for orderId, order in orders.items():
+            total_gain += order['gain']
+            total_Wait_Gain += order['WaitGain']
             embed = discord.Embed(title=orderId, timestamp=datetime_now,
                                   color=discord.Color.red())
             embed.add_field(name="quantity",
@@ -159,6 +163,14 @@ async def GetCurrentGain(ctx: commands.Context):
             embed.add_field(name="WaitGain",
                             value=order['WaitGain'], inline=True)
             await ctx.send(embed=embed)
+
+        embed = discord.Embed(title="Total", timestamp=datetime_now,
+                              color=discord.Color.red())
+        embed.add_field(name="CurrentGain",
+                        value=total_gain, inline=True)
+        embed.add_field(name="WaitGain",
+                        value=total_Wait_Gain, inline=True)
+        await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
