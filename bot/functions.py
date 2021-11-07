@@ -282,6 +282,17 @@ def GetWalletFromKraken() -> dict:
 NameOfCurrencies = \
     {
         "XXDG": "Dogecoin",
+        "SOL": "Solana",
+        "XETH": "Ethereum",
+        "TRX": "TRON",
+        "XXLM": "Stellar/Lumen",
+        "SOL.S": "Solana Stacked",
+        "EWT": "Energy Web Token",
+        "ZEUR": "Euro",
+        "SC": "Siacoin",
+        "XXRP": "Ripple",
+        "DAI": "Dai",
+        "UNI": "Uniswap",
     }
 
 
@@ -294,10 +305,23 @@ def GetNameOfCurrency(code: str) -> str:
 NameOfPairs = \
     {
         "XXDG": "XDGEUR",
+        "SOL": "SOLEUR",
+        "XETH": "XETHZEUR",
+        "TRX": "TRXEUR",
+        "XXLM": "XMLNZEUR",
+        "SOL.S": "SOLEUR",
+        "EWT": "EWTEUR",
+        "ZEUR": "NotApplicable",
+        "SC": "SCEUR",
+        "XXRP": "XXRPZEUR",
+        "DAI": "DAIEUR",
+        "UNI": "UNIEUR",
     }
 
 
 def GetPriceOfCurrency(code: str) -> float:
+    if code == "ZEUR":
+        return 1.0
     if code in NameOfPairs:
         pair = NameOfPairs[code]
         return GetPriceOfPair(pair)

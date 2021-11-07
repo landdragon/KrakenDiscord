@@ -140,7 +140,7 @@ async def getWallet(ctx: commands.Context):
                     await ctx.send(embed=embed)
                     total_Price += current_price * quantity
 
-        embed = discord.Embed(title="total",
+        embed = discord.Embed(title="Total",
                               timestamp=datetime_now, color=discord.Color.red())
         embed.add_field(name="WalletPrice",
                         value=total_Price, inline=True)
