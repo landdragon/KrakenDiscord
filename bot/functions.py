@@ -319,18 +319,24 @@ def GetCurrentGainFromKraken() -> dict:
             }
         else:
             if order['type'] == 'buy':
-                wallet_histo[order['pair']]['price'] = (order['quantity'] * order['price'] + wallet_histo[order['pair']][
-                    'quantity'] * wallet_histo[order['pair']]['price']) / (
-                                                              order['quantity'] + wallet_histo[order['pair']][
-                                                          'quantity'])
+                wallet_histo[order['pair']]['price'] = (order['quantity'] * order['price'] +
+                                                        wallet_histo[order['pair']][
+                                                            'quantity'] * wallet_histo[order['pair']]['price']) / (
+                                                               order['quantity'] + wallet_histo[order['pair']][
+                                                           'quantity'])
                 wallet_histo[order['pair']]['quantity'] += order['quantity']
             else:
                 wallet_histo[order['pair']]['quantity'] -= order['quantity']
                 wallet_histo[order['pair']]['gain'] += order['quantity'] * (
-                            order['price'] - wallet_histo[order['pair']]['price'])
+                        order['price'] - wallet_histo[order['pair']]['price'])
 
     # print(wallet_histo)
+    for wallet_id, wallet_line in wallet_histo.items():
+        current_price = GetPriceOfPair(wallet_id)
+        wallet_histo[wallet_id]['CurrentPrice'] = current_price
+        wallet_histo[wallet_id]['WaitGain'] = wallet_histo[wallet_id]['quantity'] * current_price
     return wallet_histo
+
 
 NameOfCurrencies = \
     {

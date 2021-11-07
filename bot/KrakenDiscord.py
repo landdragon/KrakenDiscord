@@ -152,8 +152,12 @@ async def GetCurrentGain(ctx: commands.Context):
                             value=order['quantity'], inline=True)
             embed.add_field(name="price",
                             value=order['price'], inline=True)
-            embed.add_field(name="gain",
+            embed.add_field(name="CurrentGain",
                             value=order['gain'], inline=True)
+            embed.add_field(name="CurrentPrice",
+                            value=order['CurrentPrice'], inline=True)
+            embed.add_field(name="WaitGain",
+                            value=order['WaitGain'], inline=True)
             await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
