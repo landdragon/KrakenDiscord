@@ -245,6 +245,7 @@ def GetOrderFromDataBase(id: int):
 def GetPairsName():
     kraken = krakenex.API()
     response = kraken.query_public('AssetPairs')
+    kraken.close()
     assetPairs = list(response['result'])
     shouldContain = 'eur'
     eurAssetPairs = [
@@ -255,6 +256,8 @@ def GetPairsName():
 def GetPriceOfPair(pair: str) -> float:
     kraken = krakenex.API()
     response = kraken.query_public('Ticker?pair=' + pair)
+    kraken.close()
+    print(response)
     price = float(response['result'][pair]['c'][0])
     return price
 
@@ -271,6 +274,32 @@ def isChannelIsAuthorised(currentChannel: str, accessChannel: str):
 def GetWalletFromKraken() -> dict:
     kraken = krakenex.API(KRAKEN_KEY, KRAKEN_SECRET)
     response: dict = kraken.query_private('Balance')
+    kraken.close()
     print(response)
-    print(response['result'])
     return response['result']
+
+
+NameOfCurrencies = \
+    {
+        "XXDG": "Dogecoin",
+    }
+
+
+def GetNameOfCurrency(code: str) -> str:
+    if code in NameOfCurrencies:
+        return NameOfCurrencies[code]
+    return code
+
+
+NameOfPairs = \
+    {
+        "XXDG": "XDGEUR",
+    }
+
+
+def GetPriceOfCurrency(code: str) -> float:
+    if code in NameOfPairs:
+        pair = NameOfPairs[code]
+        return GetPriceOfPair(pair)
+    else:
+        return 0.0

@@ -119,18 +119,32 @@ async def getWallet(ctx: commands.Context):
             return
         wallet = GetWalletFromKraken()
         datetime_now = datetime.now()
-
+        total_Price = 0.0
         if len(wallet) == 0:
             await ctx.send("Empty")
         else:
-            for name, quantity_string in wallet.items():
+            for code, quantity_string in wallet.items():
                 quantity = float(quantity_string)
+                current_price = GetPriceOfCurrency(code);
+                name = GetNameOfCurrency(code)
+
                 if quantity > 0:
                     embed = discord.Embed(title=name,
                                           timestamp=datetime_now, color=discord.Color.red())
                     embed.add_field(name="Quantity",
                                     value=quantity, inline=True)
+                    embed.add_field(name="CurrentPriceUnitary",
+                                    value=current_price, inline=True)
+                    embed.add_field(name="CurrentPrice",
+                                    value=current_price * quantity, inline=True)
                     await ctx.send(embed=embed)
+                    total_Price += current_price * quantity
+
+        embed = discord.Embed(title="total",
+                              timestamp=datetime_now, color=discord.Color.red())
+        embed.add_field(name="WalletPrice",
+                        value=total_Price, inline=True)
+        await ctx.send(embed=embed)
     except ValueError:
         await ctx.send("Error")
         print("error : " + ValueError)
