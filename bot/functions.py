@@ -300,7 +300,7 @@ def GetClosedOrdersFromKraken() -> list:
             "price": order['price'],
             "fee": order['fee'],
             "status": order['status'],
-            "closeDateTime":  datetime.datetime.fromtimestamp(order['closetm'])
+            "closeDateTime":  datetime.fromtimestamp(order['closetm'])
         });
     print(orders)
 
