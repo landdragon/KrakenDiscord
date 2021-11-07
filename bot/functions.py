@@ -301,7 +301,7 @@ def GetClosedOrdersFromKraken() -> list:
             "fee": order['fee'],
             "time":  datetime.fromtimestamp(order['time'])
         });
-    orders.sort(key=lambda order: order['time'], reverse=True)
+    orders.sort(key=lambda o: o['time'], reverse=True)
     print(orders)
 
     return orders
